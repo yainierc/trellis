@@ -3,3 +3,6 @@ tmp/
 .trellis/worktrees/
 .trellis/active
 .DS_Store
+
+# local permissions, per machine — never committed
+.claude/settings.local.json

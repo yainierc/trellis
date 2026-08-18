@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Trellis Quickstart</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper: #F2F4F1; --surface: #FFFFFF; --surface-2: #E9EDE8;
+    --ink: #141F1C; --ink-2: #4A5854; --ink-3: #6E7C77;
+    --rule: #D2D9D1; --rule-soft: #E2E7E1;
+    --teal: #0E5B54; --teal-ink: #0E5B54; --teal-soft: #DCEAE7;
+    --amber: #A25714; --amber-ink: #8A4A11; --amber-soft: #F7E8D7;
+    --brick: #8E3A31; --brick-soft: #F6E1DE;
+    --shadow: 0 1px 2px rgba(20,31,28,.05), 0 8px 24px -16px rgba(20,31,28,.28);
+    --lattice: rgba(14,91,84,.055);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0E1412; --surface: #151D1A; --surface-2: #1B2521;
+      --ink: #E7EDE9; --ink-2: #A3B1AB; --ink-3: #7E8C87;
+      --rule: #2A3733; --rule-soft: #212C29;
+      --teal: #5FC2B1; --teal-ink: #7FD3C3; --teal-soft: #16302C;
+      --amber: #D9954E; --amber-ink: #E5AA6C; --amber-soft: #322317;
+      --brick: #DA7C70; --brick-soft: #33201D;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+      --lattice: rgba(95,194,177,.06);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1412; --surface: #151D1A; --surface-2: #1B2521;
+    --ink: #E7EDE9; --ink-2: #A3B1AB; --ink-3: #7E8C87;
+    --rule: #2A3733; --rule-soft: #212C29;
+    --teal: #5FC2B1; --teal-ink: #7FD3C3; --teal-soft: #16302C;
+    --amber: #D9954E; --amber-ink: #E5AA6C; --amber-soft: #322317;
+    --brick: #DA7C70; --brick-soft: #33201D;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+    --lattice: rgba(95,194,177,.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper); color: var(--ink); margin: 0;
+    font-family: "Source Serif 4", Georgia, serif; font-size: 17px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif; }
+  code, pre { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 26px; }
+
+  .hero {
+    border-bottom: 1px solid var(--rule); padding: 52px 0 40px;
+    background:
+      repeating-linear-gradient(45deg,  var(--lattice) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(-45deg, var(--lattice) 0 1px, transparent 1px 22px);
+  }
+  .eyebrow {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11.5px; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--teal-ink);
+  }
+  h1 {
+    font-size: clamp(34px, 6vw, 48px); line-height: 1.02; font-weight: 700;
+    letter-spacing: -.03em; margin: 14px 0 0; text-wrap: balance;
+  }
+  .deck { color: var(--ink-2); margin: 14px 0 0; font-size: 18px; max-width: 52ch; text-wrap: pretty; }
+
+  section { padding: 40px 0; border-bottom: 1px solid var(--rule-soft); }
+  section:last-of-type { border-bottom: 0; }
+  h2 {
+    font-size: 25px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 6px;
+    display: flex; align-items: baseline; gap: 12px; text-wrap: balance;
+  }
+  h2 .n {
+    font-size: 12px; font-weight: 700; color: var(--teal-ink); background: var(--teal-soft);
+    width: 24px; height: 24px; border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; flex: none;
+    font-variant-numeric: tabular-nums; transform: translateY(-2px);
+  }
+  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 8px; }
+  p { margin: 0 0 14px; text-wrap: pretty; }
+  .sub { color: var(--ink-2); margin-bottom: 18px; }
+
+  pre {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.7;
+    margin: 14px 0; color: var(--ink);
+  }
+  pre .c { color: var(--ink-3); }
+  p code, li code, td code {
+    background: var(--surface-2); padding: 1px 5px; border-radius: 2px;
+    font-size: .87em; color: var(--ink);
+  }
+
+  figure { margin: 26px 0; }
+  .fig {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 20px 16px; overflow-x: auto; box-shadow: var(--shadow);
+  }
+  figure svg { display: block; width: 100%; min-width: 560px; height: auto; color: var(--ink); }
+  figcaption {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 13px; line-height: 1.5;
+    color: var(--ink-3); margin-top: 10px;
+  }
+  .s-box   { fill: var(--surface); stroke: var(--rule); stroke-width: 1.25; }
+  .s-title { font-family: "Familjen Grotesk", sans-serif; font-size: 12.5px; font-weight: 600; fill: var(--ink); }
+  .s-lbl   { font-family: "Familjen Grotesk", sans-serif; font-size: 11px; fill: var(--ink-2); }
+  .s-mono  { font-family: "IBM Plex Mono", monospace; font-size: 10px; fill: var(--ink-3); }
+  .s-line  { stroke: var(--ink-2); stroke-width: 1.35; fill: none; }
+  .t-teal  { fill: var(--teal-ink); }
+  .t-amber { fill: var(--amber-ink); }
+  .t-brick { fill: var(--brick); }
+  .st-amber { stroke: var(--amber); }
+
+  .tbl { overflow-x: auto; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 460px; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); border-bottom-color: var(--rule);
+  }
+
+  .note {
+    border-left: 3px solid var(--amber); background: var(--amber-soft);
+    padding: 14px 18px; border-radius: 0 3px 3px 0; margin: 20px 0;
+  }
+  .note.ok { border-left-color: var(--teal); background: var(--teal-soft); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--amber-ink);
+    display: block; margin-bottom: 4px;
+  }
+  .note.ok .tag { color: var(--teal-ink); }
+
+  ul { padding-left: 20px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+
+  footer { padding: 32px 0 48px; color: var(--ink-3); font-size: 14px; }
+  a { color: var(--teal-ink); text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Trellis · v0.2.0</div>
+    <h1>Quickstart</h1>
+    <p class="deck">
+      Install the plugin, tell one repository about it, and do a first piece of work under contract.
+      Ten minutes, four commands.
+    </p>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- 1 · INSTALL -->
+  <section>
+    <h2><span class="n">1</span> Install</h2>
+    <p class="sub">
+      There is no build and no installer — a plugin is distributed as source. The only prerequisite
+      is <strong>Node on your PATH</strong>.
+    </p>
+    <pre>claude plugin marketplace add yainierc/trellis
+claude plugin install trellis@gmstek</pre>
+    <p>Check it landed:</p>
+    <pre>claude plugin details trellis@gmstek
+<span class="c">  Hooks (4)  PreToolUse, PostToolUse, Stop, SubagentStop</span></pre>
+    <p>
+      Keep the plugin path handy — the templates and the validator live inside it:
+    </p>
+    <pre>TRELLIS=$(echo ~/.claude/plugins/cache/gmstek/trellis/*/)</pre>
+  </section>
+
+  <!-- 2 · WIRE UP A REPO -->
+  <section>
+    <h2><span class="n">2</span> Wire up a repository</h2>
+    <p class="sub">
+      Installing changes nothing on its own. A repository opts in by carrying a profile — the file
+      that tells Trellis how to build, test and lint <em>here</em>.
+    </p>
+    <pre>mkdir -p .trellis
+cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
+    <p>Open it and fill in the commands that actually exist in this repo:</p>
+    <pre>commands:
+  build:     dotnet build MySolution.sln
+  test_fast: dotnet test --filter Category=Unit
+  lint:      ~                      <span class="c"># `~` = none here; the gate is skipped and says so</span>
+
+git:
+  base_branch:    main
+  branch_pattern: "task/{id}-{slug}"</pre>
+    <div class="note">
+      <span class="tag">Read this once</span>
+      <p>
+        A field set to <code>~</code> means "not applicable here". The gate that would have used it
+        is skipped <em>out loud</em>, never silently. Leaving a real command out is not the same as
+        declaring there isn't one.
+      </p>
+    </div>
+  </section>
+
+  <!-- 3 · WHEN IS IT ON -->
+  <section>
+    <h2><span class="n">3</span> Know when it is guarding you</h2>
+    <p class="sub">
+      Trellis is deliberately silent outside the situation it was built for. Two conditions arm it,
+      and both must hold.
+    </p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 700 240" role="img" aria-label="Enforcement is armed only when the repository has a .trellis/profile.yml and the current branch matches the contract branch pattern; otherwise the hooks stay silent.">
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect class="s-box" x="16" y="30" width="150" height="52" rx="3"/>
+          <text class="s-title" x="91" y="52" text-anchor="middle">Any repo</text>
+          <text class="s-mono"  x="91" y="69" text-anchor="middle">no profile</text>
+
+          <rect class="s-box" x="16" y="130" width="150" height="52" rx="3"/>
+          <text class="s-title" x="91" y="152" text-anchor="middle">Your repo</text>
+          <text class="s-mono"  x="91" y="169" text-anchor="middle">.trellis/profile.yml</text>
+
+          <rect class="s-box" x="250" y="130" width="170" height="52" rx="3"/>
+          <text class="s-title" x="335" y="152" text-anchor="middle">On a task branch?</text>
+          <text class="s-mono"  x="335" y="169" text-anchor="middle">task/&lt;id&gt;-&lt;slug&gt;</text>
+
+          <rect x="504" y="118" width="180" height="46" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.5"/>
+          <text class="s-title t-teal" x="594" y="146" text-anchor="middle">ARMED</text>
+
+          <rect x="504" y="26" width="180" height="46" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
+          <text class="s-title" x="594" y="54" text-anchor="middle">silent</text>
+
+          <g class="s-line" marker-end="url(#a1)">
+            <line x1="166" y1="56"  x2="498" y2="50"/>
+            <line x1="166" y1="156" x2="244" y2="156"/>
+            <line x1="420" y1="156" x2="498" y2="142"/>
+            <line x1="335" y1="182" x2="335" y2="204"/>
+          </g>
+          <line class="s-line" x1="335" y1="204" x2="590" y2="204" marker-end="url(#a1)"/>
+          <line class="s-line" x1="590" y1="204" x2="590" y2="76" marker-end="url(#a1)"/>
+
+          <text class="s-lbl t-teal"  x="440" y="146">yes</text>
+          <text class="s-lbl" x="348" y="198">no</text>
+          <text class="s-lbl" x="300" y="44">no profile → never enforces</text>
+        </svg>
+      </div>
+      <figcaption>
+        Silence is the normal state. If you expect it armed and it is silent, check the branch name
+        first — that is how every hook knows which contract it is enforcing.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 4 · THE LOOP -->
+  <section>
+    <h2><span class="n">4</span> Do a piece of work</h2>
+    <p class="sub">
+      A spec answers what and why for a whole capability. A contract is one unit of work inside it.
+      The branch is what turns the guardrails on.
+    </p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 740 220" role="img" aria-label="The working loop: write a spec, write a contract, validate it, branch, work under the write and git boundaries, then the Stop gate re-runs every criterion and either passes or marks the contract blocked.">
+          <defs>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+            <marker id="a2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--brick)"/>
+            </marker>
+          </defs>
+
+          <g>
+            <rect class="s-box" x="14"  y="40" width="128" height="56" rx="3"/>
+            <text class="s-title" x="78" y="63" text-anchor="middle">Spec</text>
+            <text class="s-mono"  x="78" y="80" text-anchor="middle">the capability</text>
+
+            <rect class="s-box" x="166" y="40" width="128" height="56" rx="3"/>
+            <text class="s-title" x="230" y="63" text-anchor="middle">Contract</text>
+            <text class="s-mono"  x="230" y="80" text-anchor="middle">writes · done_when</text>
+
+            <rect x="318" y="40" width="128" height="56" rx="3" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="1.4"/>
+            <text class="s-title t-amber" x="382" y="63" text-anchor="middle">Branch</text>
+            <text class="s-mono t-amber"  x="382" y="80" text-anchor="middle">guardrails on</text>
+
+            <rect class="s-box" x="470" y="40" width="128" height="56" rx="3"/>
+            <text class="s-title" x="534" y="63" text-anchor="middle">Work</text>
+            <text class="s-mono"  x="534" y="80" text-anchor="middle">inside the writes</text>
+
+            <rect x="622" y="40" width="104" height="56" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+            <text class="s-title t-teal" x="674" y="63" text-anchor="middle">Stop gate</text>
+            <text class="s-mono t-teal"  x="674" y="80" text-anchor="middle">re-runs all</text>
+          </g>
+
+          <g class="s-line" marker-end="url(#a2)">
+            <line x1="142" y1="68" x2="160" y2="68"/>
+            <line x1="294" y1="68" x2="312" y2="68"/>
+            <line x1="446" y1="68" x2="464" y2="68"/>
+            <line x1="598" y1="68" x2="616" y2="68"/>
+          </g>
+
+          <path d="M674 96 L674 140" fill="none" stroke="var(--brick)" stroke-width="1.35" stroke-dasharray="5 4" marker-end="url(#a2b)"/>
+          <rect x="556" y="144" width="170" height="44" rx="3" fill="var(--brick-soft)" stroke="var(--brick)" stroke-width="1.3"/>
+          <text class="s-title t-brick" x="641" y="164" text-anchor="middle">blocked</text>
+          <text class="s-mono t-brick"  x="641" y="180" text-anchor="middle">you decide what happens</text>
+          <text class="s-lbl t-brick" x="546" y="124" text-anchor="end">any criterion fails</text>
+
+          <text class="s-lbl" x="14" y="176">Validate before you branch:</text>
+          <text class="s-mono" x="14" y="194">node $TRELLIS/scripts/validate-contract.mjs docs/contracts --all</text>
+        </svg>
+      </div>
+      <figcaption>
+        The Stop gate never forces a retry. It re-runs every criterion, records the truth in the
+        contract, and lets you decide — retry, abandon, or pause.
+      </figcaption>
+    </figure>
+
+    <h3>The four commands</h3>
+    <pre>cp $TRELLIS/templates/SPEC.md      docs/specs/my-feature.md
+cp $TRELLIS/templates/CONTRACT.md  docs/contracts/MY-T-01.md
+
+node $TRELLIS/scripts/validate-contract.mjs docs/contracts --all
+
+git checkout -b task/MY-T-01-short-slug</pre>
+    <p>
+      Now work. The hardest and most valuable part of the contract is <code>done_when</code>: it
+      forces you to decide how "done" gets checked <em>before</em> any code exists. Prefer runnable
+      commands — the gate re-executes them verbatim.
+    </p>
+  </section>
+
+  <!-- 5 · WHAT IT STOPS -->
+  <section>
+    <h2><span class="n">5</span> What it will stop you doing</h2>
+    <p class="sub">Only while a contract is in flight. Each refusal explains itself and cites its rule.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Attempt</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Edit a file outside <code>writes</code></td><td>Denied — scope is never widened mid-flight</td></tr>
+          <tr><td>Edit the contract you are executing</td><td>Denied — a wrong contract is fixed by a human, in a separate commit</td></tr>
+          <tr><td><code>git push</code>, <code>gh pr create</code>, <code>git rebase</code>, branch switch</td><td>Denied — you commit in your worktree and stop there</td></tr>
+          <tr><td>Push to <code>main</code> or force-push</td><td>Denied always, contract or not</td></tr>
+          <tr><td>Finish with a red build</td><td>Allowed to stop — but the contract is marked <code>blocked</code> and you are told</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note ok">
+      <span class="tag">Not a sandbox</span>
+      <p>
+        These are defence in depth against drift, not a security boundary. A determined shell can
+        evade a pattern, and that is by design — the goal is that nobody wanders out of scope by
+        accident.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 · UPDATES -->
+  <section>
+    <h2><span class="n">6</span> Staying current</h2>
+    <pre>claude plugin update trellis@gmstek</pre>
+    <div class="note">
+      <span class="tag">If you maintain the plugin</span>
+      <p>
+        The install cache is keyed by version. New commits without a version bump in
+        <code>plugin.json</code> reach nobody, and <code>update</code> will happily report
+        <em>already at the latest version</em>. Bump it, then <code>claude plugin tag --push</code>.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Trellis v0.2.0 · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    The long version — what a contract is, why gates exist, the enforcement ladder — is in
+    <code>docs/overview.html</code>.
+  </footer>
+</main>
+
+</body>
+</html>
