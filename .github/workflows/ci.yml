@@ -1,0 +1,47 @@
+# trellis — CI.
+#
+# This workflow is what makes graduated autonomy mean anything. `gh pr merge --auto` waits for the
+# required status checks on the base branch; a branch with no required checks has nothing to wait for
+# and merges immediately. The job name below is the context that branch protection requires, so
+# renaming it silently disarms the gate — change both together.
+#
+# No dependencies, no build step, no lockfile: the plugin is plain Node ESM, so CI is just Node.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: lint — every handler and script parses
+        run: find scripts hooks -name '*.mjs' -exec node --check {} \;
+
+      - name: contracts — structure, cycles, and writes conflicts
+        run: node scripts/validate-contract.mjs docs/contracts --all
+
+      - name: hooks — the write boundary, the git boundary, the Stop gate, autonomy
+        run: node scripts/test-hooks.mjs
+
+      - name: docs — the standalone builds regenerate cleanly
+        run: |
+          node scripts/build-docs.mjs
+          git diff --exit-code --stat docs/dist/ || {
+            echo "::error::docs/dist is stale — run 'node scripts/build-docs.mjs' and commit the result"
+            exit 1
+          }
