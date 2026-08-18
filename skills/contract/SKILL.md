@@ -139,6 +139,18 @@ Do not self-certify. When the work is done, the Stop gate re-runs every criterio
 confirms it or marks the contract `blocked` and tells the human what failed. Report faithfully in the
 meantime: what you ran, what you skipped, and what you did instead.
 
+## When the working set gets noisy
+
+Finished contracts do not leave on their own. When `docs/contracts/` has more history than live work,
+run `node "${CLAUDE_PLUGIN_ROOT}/scripts/archive.mjs" --dry-run` first, read what it would move, then
+run it without the flag.
+
+It moves `completed` and `withdrawn` contracts into `archive/<year>/`, and a spec once every contract
+of its wave has gone. **Statuses are never changed** — archiving is a location, not an outcome — and
+`depends_on` still resolves across the boundary, so a live contract may depend on one archived long
+ago. `core.md` §10 names the decay this prevents: files that only ever grow raise the context cost of
+every session in the repo.
+
 ## Failure modes seen in the wild
 
 | Symptom | Cause | Fix |

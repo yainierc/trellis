@@ -12,7 +12,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, basename } from 'node:path'
 import { parseFrontmatter, doneWhenCriteria } from './frontmatter.mjs'
 
 // Statuses a hook enforces against. A completed or withdrawn contract governs nothing.
@@ -55,14 +55,21 @@ export function declaredContractId ({ root }) {
   return null
 }
 
-function contractFiles (dir) {
+// Every contract file under `dir`. `archived` marks the ones living under the archive path: they
+// still exist for reference resolution, but they are history and take no part in conflict or cycle
+// detection. Shared so the validator and scripts/archive.mjs can never disagree about what exists.
+export function contractFiles (dir, { archiveName = 'archive' } = {}) {
   const out = []
   if (!existsSync(dir)) return out
-  ;(function walk (p) {
+  ;(function walk (p, inArchive) {
     const st = statSync(p)
-    if (st.isDirectory()) { for (const e of readdirSync(p)) walk(join(p, e)); return }
-    if (p.endsWith('.md')) out.push(p)
-  })(dir)
+    if (st.isDirectory()) {
+      const here = inArchive || basename(p) === archiveName
+      for (const e of readdirSync(p)) walk(join(p, e), here)
+      return
+    }
+    if (p.endsWith('.md') && !basename(p).startsWith('_')) out.push({ file: p, archived: inArchive })
+  })(dir, false)
   return out
 }
 
@@ -88,7 +95,7 @@ export function resolveActiveContract ({ root, profile, cwd }) {
   if (!declared && !looksLikeTask) return null
 
   const dir = join(root, profile.paths.contracts)
-  for (const file of contractFiles(dir)) {
+  for (const { file } of contractFiles(dir)) {
     const fm = parseFrontmatter(readFileSync(file, 'utf8'))
     if (fm.error || !fm.data?.id) continue
     const hit = declared

@@ -9,7 +9,7 @@
 //   node scripts/test-hooks.mjs
 
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, realpathSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, realpathSync, rmSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -334,6 +334,51 @@ const repo = opts => { const d = makeRepo(opts); cleanup.push(d); return d }
   cleanup.push(bare)
   r = fire('stop-gate.mjs', { hook_event_name: 'Stop', cwd: bare })
   check('an ungoverned repo stops normally', r.exit === 0 && !r.out.systemMessage, JSON.stringify(r.out))
+}
+
+// ── archiving ────────────────────────────────────────────────────────────────
+//
+// The property the whole feature turns on: a live contract may depend on one that was archived
+// months ago, and the validator must stay quiet. If archiving can break the graph, nobody will ever
+// run it, and the decay signal core.md §10 names stays open forever.
+{
+  const dir = repo()
+  const VALIDATE = join(ROOT, 'scripts', 'validate-contract.mjs')
+  const ARCHIVE = join(ROOT, 'scripts', 'archive.mjs')
+  const run = (script, args, cwd) => spawnSync('node', [script, ...args], { cwd, encoding: 'utf8' })
+
+  // FIX-T-01 exists and is active. Add a finished one, and a live one that depends on it.
+  const c = (id, status, deps) => contract(id, '- [ ] `true`').
+    replace(/^status: active$/m, `status: ${status}`).
+    replace(/^id: FIX-T-01$/m, `id: ${id}`).
+    replace(/^depends_on: \[\]$/m, `depends_on: ${JSON.stringify(deps || [])}`)
+  writeFileSync(join(dir, 'docs/contracts/OLD-T-01.md'), c('OLD-T-01', 'completed'))
+  writeFileSync(join(dir, 'docs/contracts/NEW-T-01.md'), c('NEW-T-01', 'pending', ['OLD-T-01']))
+
+  let r = run(VALIDATE, ['docs/contracts', '--all'], dir)
+  check('archive: the graph is clean before archiving', r.status === 0, r.stdout)
+
+  r = run(ARCHIVE, ['--dry-run'], dir)
+  check('archive: --dry-run exits 0', r.status === 0, r.stderr)
+  check('archive: --dry-run names the finished contract', /OLD-T-01/.test(r.stdout), r.stdout)
+  check('archive: --dry-run moves nothing', existsSync(join(dir, 'docs/contracts/OLD-T-01.md')))
+
+  r = run(ARCHIVE, [], dir)
+  check('archive: the real run exits 0', r.status === 0, r.stderr)
+  check('archive: the finished contract left the working set', !existsSync(join(dir, 'docs/contracts/OLD-T-01.md')))
+  check('archive: it landed under archive/<year>/',
+    existsSync(join(dir, `docs/contracts/archive/${new Date().getFullYear()}/OLD-T-01.md`)))
+  check('archive: the live one stayed put', existsSync(join(dir, 'docs/contracts/NEW-T-01.md')))
+  check('archive: status is untouched — location is not an outcome',
+    /^status: completed$/m.test(readFileSync(join(dir, `docs/contracts/archive/${new Date().getFullYear()}/OLD-T-01.md`), 'utf8')))
+
+  // the property
+  r = run(VALIDATE, ['docs/contracts', '--all'], dir)
+  check('archive: depends_on across the boundary still resolves', r.status === 0, r.stdout)
+  check('archive: the archived one is not counted as live', /1 archived/.test(r.stdout), r.stdout)
+
+  r = run(ARCHIVE, [], dir)
+  check('archive: running it twice is a no-op', /Nothing to archive/.test(r.stdout), r.stdout)
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

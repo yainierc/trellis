@@ -77,6 +77,7 @@ real repository rather than to a preference.
 | `templates/SPEC.md` — the wave, and where cross-cutting concerns get decided | ✅ |
 | `skills/init` · `skills/spec` · `skills/contract` — adoption, scope from documents, starting work | ✅ |
 | `scripts/lib/autonomy.mjs` — graduated autonomy, granted by a human and proved by the platform | ✅ |
+| `scripts/archive.mjs` — finished work leaves the working set, without breaking the graph | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/` — analyst, implementer, reviewer, specialists | next |

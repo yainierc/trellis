@@ -23,7 +23,7 @@ export function findRepoRoot (from) {
 }
 
 const DEFAULTS = {
-  paths: { specs: 'docs/specs', contracts: 'docs/contracts', decisions: 'docs/adr', scratch: 'tmp' },
+  paths: { specs: 'docs/specs', contracts: 'docs/contracts', archive: 'docs/contracts/archive', decisions: 'docs/adr', scratch: 'tmp' },
   git: { base_branch: 'main', branch_pattern: 'task/{id}-{slug}', worktree_root: '.trellis/worktrees' },
   commands: {},
   gates: { stop: ['build', 'lint', 'test_fast', 'done_when'] },

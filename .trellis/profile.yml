@@ -13,6 +13,7 @@ project:
 paths:
   specs: docs/specs
   contracts: docs/contracts
+  archive: docs/contracts/archive
   decisions: docs/adr
   runbooks: docs/runbooks
   scratch: tmp

@@ -18,6 +18,10 @@ project:
 paths:
   specs: openspec/changes      # where specs / change proposals live
   contracts: docs/contracts    # where contract files live: pending/ active/ completed/
+  # Where finished contracts go, by year. Archiving is a MOVE and a location — it never changes a
+  # contract's `status`, and the validator still resolves `depends_on` across the boundary so a live
+  # contract may depend on one archived months ago. Run `node scripts/archive.mjs --dry-run` first.
+  archive: docs/contracts/archive
   decisions: docs/adr          # decision records
   runbooks: docs/runbooks
   scratch: tmp                 # gitignored; never referenced from a committed file

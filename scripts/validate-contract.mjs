@@ -13,6 +13,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, basename } from 'node:path'
 import { parseFrontmatter, section } from './lib/frontmatter.mjs'
+import { contractFiles } from './lib/contract.mjs'
 import { norm, overlap } from './lib/paths.mjs'
 
 const STATUS = ['pending', 'active', 'blocked', 'gated', 'completed', 'withdrawn']
@@ -122,10 +123,10 @@ function crossCheck (contracts) {
     for (const d of byId.get(id)?.data.depends_on || []) if (byId.has(d)) walk(d, [...trail, id])
     state.set(id, 'done')
   }
-  for (const id of byId.keys()) walk(id, [])
+  for (const c of contracts.filter(c => !c.archived)) walk(c.data.id, [])
 
   // undeclared conflicts between contracts that could run at the same time
-  const live = contracts.filter(c => ['pending', 'active'].includes(c.data.status))
+  const live = contracts.filter(c => !c.archived && ['pending', 'active'].includes(c.data.status))
   for (let i = 0; i < live.length; i++) {
     for (let j = i + 1; j < live.length; j++) {
       const a = live[i]; const b = live[j]
@@ -150,16 +151,16 @@ if (!target) {
   process.exit(2)
 }
 
-const files = []
-;(function collect (p) {
-  const st = statSync(p)
-  if (st.isDirectory()) { for (const e of readdirSync(p)) collect(join(p, e)); return }
-  if (p.endsWith('.md') && !basename(p).startsWith('_')) files.push(p)
-})(target)
+// Archived contracts are still read — a live contract may legitimately depend on one that finished
+// months ago, and archiving must never turn that into a dangling reference. What they do NOT do is
+// take part in conflict or cycle detection: history cannot collide with live work.
+const files = statSync(target).isDirectory()
+  ? contractFiles(target)
+  : [{ file: target, archived: false }]
 
 let failed = false
 const parsed = []
-for (const f of files) {
+for (const { file: f, archived } of files) {
   const { errors, warnings, data } = validate(f, readFileSync(f, 'utf8'))
   const label = relative(process.cwd(), f) || f
   if (errors.length) {
@@ -170,11 +171,13 @@ for (const f of files) {
     console.log(`✓ ${label}${warnings.length ? '' : ''}`)
   }
   for (const w of warnings) console.log(`    warn   ${w}`)
-  if (data?.id) parsed.push({ file: f, data })
+  if (data?.id) parsed.push({ file: f, data, archived })
 }
 
 if (all && parsed.length) {
-  console.log(`\n── cross-contract checks (${parsed.length} contracts) ──`)
+  const nArchived = parsed.filter(c => c.archived).length
+  console.log(`\n── cross-contract checks (${parsed.length - nArchived} live` +
+    `${nArchived ? `, ${nArchived} archived — referenced but not scheduled` : ''}) ──`)
   const findings = crossCheck(parsed)
   if (!findings.length) console.log('✓ no dependency cycles, dangling references or undeclared write conflicts')
   for (const f of findings) {
