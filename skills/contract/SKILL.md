@@ -105,6 +105,18 @@ git checkout -b task/<id>-<short-slug>
 boundary and the Stop gate are all inert. Tell the user the branch name and that the guardrails are
 now armed.
 
+**If this repository has no git**, there is no branch to read, and the explicit substitute is a
+one-line file:
+
+```
+echo "<id>" > .trellis/active
+```
+
+The hooks read it exactly as they would a branch name — the write boundary and the Stop gate work
+identically without a repository. Delete it when the contract is done, or the boundary keeps
+enforcing a contract nobody is working on. Note that `autonomy: autonomous` is unreachable in this
+case by construction: there is no remote, so there is no platform that could refuse a merge.
+
 ### 6. Set `status: active` and work
 
 Change `status` from `pending` to `active` in the contract. That single field is the only part of the

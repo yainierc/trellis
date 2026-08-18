@@ -85,9 +85,9 @@ ${criteria}
 
 function makeRepo ({ branch = 'task/FIX-T-01-thing', criteria = '- [ ] `true`',
                      profileAutonomy = null, deployOnMerge = null, contractAutonomy = null,
-                     remote = null } = {}) {
+                     remote = null, noGit = false, active = null } = {}) {
   const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trellis-fixture-')))
-  const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'ignore' })
+  const git = (...a) => noGit ? undefined : execFileSync('git', a, { cwd: dir, stdio: 'ignore' })
   git('init', '-q', '-b', 'main')
   git('config', 'user.email', 'fixture@example.com')
   git('config', 'user.name', 'fixture')
@@ -105,7 +105,8 @@ function makeRepo ({ branch = 'task/FIX-T-01-thing', criteria = '- [ ] `true`',
   git('add', '-A')
   git('commit', '-qm', 'fixture')
   if (remote) git('remote', 'add', 'origin', remote)
-  if (branch !== 'main') git('checkout', '-qb', branch)
+  if (branch !== 'main' && !noGit) git('checkout', '-qb', branch)
+  if (active) writeFileSync(join(dir, '.trellis', 'active'), active + '\n')
   return dir
 }
 
@@ -208,6 +209,36 @@ const repo = opts => { const d = makeRepo(opts); cleanup.push(d); return d }
 
   r = fire('git-boundary.mjs', bash(onMain, 'git log --oneline -5'))
   check('reading history is left alone outside a contract', decision(r) === null, `got ${decision(r)}`)
+}
+
+// ── no git at all ────────────────────────────────────────────────────────────
+//
+// A folder of requirement documents, with no repository, is a repo Trellis can govern. Only
+// *automatic* contract resolution needs git, because it reads the branch name; `.trellis/active` is
+// the explicit substitute and it is the reason this whole path works.
+{
+  const docs = repo({ noGit: true })
+
+  let r = fire('write-boundary.mjs', write(docs, join(docs, 'anything.txt')))
+  check('git-less: inert with no marker', decision(r) === null && !r.out.systemMessage, JSON.stringify(r.out))
+
+  const marked = repo({ noGit: true, active: 'FIX-T-01' })
+
+  r = fire('write-boundary.mjs', write(marked, join(marked, 'src/allowed/x.ts')))
+  check('git-less: .trellis/active allows inside `writes`', decision(r) === null, `got ${decision(r)}: ${reason(r)}`)
+
+  r = fire('write-boundary.mjs', write(marked, join(marked, 'docs/Requirements.docx')))
+  check('git-less: .trellis/active denies outside `writes`', decision(r) === 'deny', `got ${decision(r)}`)
+  check('git-less: the denial still names the contract', /FIX-T-01/.test(reason(r)), reason(r))
+
+  r = fire('stop-gate.mjs', { hook_event_name: 'Stop', cwd: marked })
+  check('git-less: the Stop gate runs without a repository', /passed the Stop gate/.test(r.out.systemMessage || ''), JSON.stringify(r.out))
+
+  // an id that matches nothing is a broken context, not an absent one — same as a bad branch name
+  const ghost = repo({ noGit: true, active: 'NOPE-T-99' })
+  r = fire('write-boundary.mjs', write(ghost, join(ghost, 'anything.txt')))
+  check('git-less: a marker naming a missing contract is reported',
+    decision(r) === null && /NOT being enforced/.test(r.out.systemMessage || ''), JSON.stringify(r.out))
 }
 
 // ── graduated autonomy ───────────────────────────────────────────────────────

@@ -363,7 +363,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.4.0 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.5.0 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -1051,7 +1051,13 @@
         <pre>git clone https://github.com/yainierc/trellis.git ~/src/trellis
 ln -s ~/src/trellis ~/.claude/skills/trellis</pre>
         <p>To confirm it is seen:</p>
-        <pre>claude plugin details trellis</pre>
+        <pre>claude plugin details trellis@skills-dir</pre>
+        <p>
+          The <code>@source</code> suffix matters here. A bare <code>claude plugin details trellis</code>
+          also works, but it resolves to whichever copy is <em>active</em> — and a plugin installed
+          from a marketplace shadows the one you are editing, so the bare form will happily report
+          on a frozen snapshot while your changes sit undiscovered on disk.
+        </p>
         <p>
           Edit a file in the repo and the change is live in the next session. This is the right mode
           while the plugin changes daily. To remove it:
@@ -1238,7 +1244,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.4.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
+      Trellis v0.5.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>

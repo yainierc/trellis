@@ -39,6 +39,31 @@ the commands there, so use theirs instead of inventing `npm test`.
 Also read the default branch (`git symbolic-ref refs/remotes/origin/HEAD`, falling back to the
 current branch) rather than assuming `main`.
 
+### 2b. If there is no code yet, say so and set up for that
+
+A folder holding requirement documents, notes and nothing executable is a perfectly good Trellis
+repository, and it is the phase where the framework has most to offer. **Do not treat it as a
+failure to detect a stack.**
+
+When none of the signals above match and there is no source tree:
+
+- Set every command to `~`, with the reason stated: there is nothing to build or test **yet**. This
+  is the declared-`none` rule, not an empty profile.
+- Create `docs/specs/` and `docs/adr/` first. Those are the artifacts that matter now; `docs/contracts/`
+  can exist and stay empty.
+- Point out that `/trellis:spec` turns their requirement documents into a spec, and that it is the
+  next thing to do.
+- Re-run this skill once a stack exists. Say that explicitly, because a profile full of `~` is
+  correct today and wrong the moment there is a build.
+
+**Git is not required.** Verified: the write boundary, the Stop gate and the validator all work in a
+folder with no repository. Only *automatic* contract resolution needs git, since it reads the branch
+name — and there is an explicit substitute, covered in step 5b.
+
+Still recommend `git init`. Not because Trellis needs it, but because specs and decision records are
+documents *about decisions*, and their value is knowing when one was taken and what changed after.
+Offer the command; do not run it uninvited.
+
 ### 3. Verify every candidate command before it goes in the file
 
 For each of `build`, `test_fast`, `lint`, run it and watch what happens. A command that exits
@@ -80,6 +105,25 @@ Check whether the scratch path (`paths.scratch`, default `tmp/`) is gitignored. 
 committed files must never reference a gitignored scratch location, and a scratch directory that is
 *not* ignored gets committed by accident.
 
+### 5b. Explain how a contract is pointed at
+
+Every hook has to know which contract is in flight. There are two ways, and which one applies depends
+on whether this repository has git:
+
+- **With git** — the branch does it. A branch matching `branch_pattern` names the contract, and
+  nothing else is needed. This is the normal path and it cannot desynchronise.
+- **Without git** — a one-line file:
+
+  ```
+  echo "MY-T-01" > .trellis/active
+  ```
+
+  The hooks read it exactly as they would read a branch name. Delete the file when the contract is
+  done, or the boundary keeps enforcing a contract nobody is working on.
+
+If the repo has git, add `.trellis/active` to `.gitignore`: it is working state, not a decision, and
+committing it means someone else's session inherits your active contract.
+
 ### 6. Prove it works, then report
 
 Run the validator over the (empty) contracts directory to confirm the plugin can read the repo:
@@ -103,5 +147,7 @@ Then report, in this shape:
 |---|---|---|
 | Stop gate marks good work `blocked` on every close | A command in the profile does not exist; its non-zero exit reads as a failed gate | Run every command at init time. That is step 3, and it is not optional |
 | Hooks never fire and nobody knows why | Branch does not match `branch_pattern` | Report the two arming conditions at the end of init, every time |
+| A documents-only folder was treated as a broken repo | Init looked only for stacks | Step 2b: no code is a valid state, not a detection failure |
+| Hooks never fire in a repo with no git | No branch to read and no `.trellis/active` | Step 5b — the marker file is the explicit form |
 | The gate takes four minutes | An integration suite was put in `test_fast` | `test_fast` is the sub-minute suite; slow suites are `test_slow`, which runs at `pre_pr` |
 | A hand-tuned profile was silently overwritten | Init assumed a fresh repo | Step 1 |

@@ -75,7 +75,7 @@ real repository rather than to a preference.
 | `scripts/validate-contract.mjs` — structural gate | ✅ |
 | `templates/project-profile.yml` — the tuning surface | ✅ |
 | `templates/SPEC.md` — the wave, and where cross-cutting concerns get decided | ✅ |
-| `skills/init` · `skills/contract` — adoption and starting work, as sentences | ✅ |
+| `skills/init` · `skills/spec` · `skills/contract` — adoption, scope from documents, starting work | ✅ |
 | `scripts/lib/autonomy.mjs` — graduated autonomy, granted by a human and proved by the platform | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
