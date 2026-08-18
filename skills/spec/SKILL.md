@@ -15,22 +15,52 @@ spec — but the value is not the spec, it is the **separation**.
 
 ## Steps
 
-### 1. Find the sources and say what you can and cannot read
+### 1. Establish where you are allowed to look
 
-List every candidate document. Then, per format:
+Before opening anything, settle the search root. Use what the user named — a folder, a handful of
+files, "these documents". **If they did not name one, ask.** Do not default to the whole repository:
+a scan that wanders is slow, expensive, and pulls in things nobody meant as requirements.
+
+Search that root **including its subdirectories** — requirements are almost never flat, and the
+annex three folders down is usually where the awkward constraint lives. Skip:
+
+| Skip | Why |
+|---|---|
+| `.git/`, `node_modules/`, `vendor/`, `dist/`, `build/`, `.venv/` | Machinery, not requirements |
+| `.trellis/worktrees/`, the profile's `paths.scratch` | Working state, gitignored by design |
+| **The profile's `paths.specs`, `paths.contracts` and `paths.decisions`** | **These are your own output** |
+| Images, binaries, archives | Nothing to read as text |
+
+That third row is the one that bites. A repository where this skill has already run has a
+`docs/specs/` full of exactly the kind of prose a naive scan reads as requirements — and a spec built
+partly from a previous spec **launders yesterday's assumptions into today's decisions**, where
+nothing downstream can tell them apart from something the client actually wrote. Source documents
+come from outside this loop. Treat a prior spec as *context you may consult*, never as a source, and
+say so if you use one.
+
+### 2. List what you found before you read any of it
+
+Show the candidate list — path, format, rough size — and say which you will read, which need
+conversion, and which you cannot open at all.
+
+**Above roughly a dozen documents, or when several look irrelevant, stop and ask** rather than
+reading everything. A spec built on four of thirty documents is fine; one that silently chose those
+four is not. Never sample without saying so.
+
+Then, per format:
 
 | Format | How |
 |---|---|
 | `.pdf` | Read it directly. Long documents come in page ranges; read all of them, do not sample |
 | `.md`, `.txt` | Read directly |
 | `.docx` | **Cannot be read directly.** On macOS: `textutil -convert txt -stdout <file>`. `pandoc -t plain <file>` where available |
+| `.xlsx`, `.csv` | Requirements matrices live here more often than anyone admits. `.csv` reads directly; for `.xlsx` ask for a CSV export rather than guessing |
 | anything else | **Report it as unread.** Never infer content from a filename |
 
-State the list before you start: what you read, what you converted and how, and what you could not
-open. A spec built on three of five documents is fine — a spec that does not say which two were
-skipped is not.
+A `.pdf` that is a scan has no text layer — you will get pages of image. Say so; a scanned annex you
+could not actually read is a gap in the spec, not a document you covered.
 
-### 2. Read everything before writing anything
+### 3. Read everything before writing anything
 
 Requirements contradict each other across documents, and the contradiction is usually the most
 important thing on the page. You cannot see it having read one file.
@@ -45,7 +75,7 @@ While reading, keep the three buckets explicitly:
 When you are unsure whether something is decided or assumed, **it is assumed.** That rule costs a
 question; the opposite costs the project.
 
-### 3. Fill the template
+### 4. Fill the template
 
 Copy `${CLAUDE_PLUGIN_ROOT}/templates/SPEC.md` into the repo's specs path and fill it in.
 
@@ -64,7 +94,7 @@ open question. **Do not invent a value to make the file look complete.**
 
 Set `status: draft`. It stays draft until a human says otherwise.
 
-### 4. Stop at the gate
+### 5. Stop at the gate
 
 Present, in this order:
 
@@ -79,7 +109,7 @@ Then stop. **Do not write contracts.** At this stage there is no stack, no paths
 declare `writes` against, and a contract with invented paths is worse than no contract at all.
 Decomposition comes after a human has approved the spec and a stack exists.
 
-### 5. Suggest recording the decisions that already exist
+### 6. Suggest recording the decisions that already exist
 
 If the reading surfaced a real decision — a stack, a hosting model, a data store, an integration that
 has to be honoured — say that it belongs in an ADR. Those are cheapest to record now and are exactly
@@ -95,3 +125,7 @@ uninvited.
 | Two documents disagree and the spec picked one | The contradiction was tidied away | Report it. Choosing is the human's |
 | Frontmatter fully populated on day one | Cross-cutting fields invented to look complete | `none` with a reason, or an open question |
 | Contracts written straight from the spec | Skipped the human gate | The spec is `draft` until a person approves it |
+| The spec agrees suspiciously well with an earlier one | A previous spec in `docs/specs/` was scanned as a source | The output paths are excluded. A prior spec is context, never a requirement |
+| The scan took minutes and read a licence file | No search root was established, so it walked the repo | Step 1: ask for the root, exclude machinery |
+| An annex in a subfolder was never opened | The search was not recursive | Recursion is on by default; the exclusions are what bound it |
+| Thirty documents, four read, nobody told | Sampled silently | Step 2: above a dozen, show the list and ask |

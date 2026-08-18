@@ -8,6 +8,7 @@ supersedes: none
 
 contracts:
   - SCOPE-T-01
+  - SCOPE-T-02
 
 feature_flag: none
 flag_reason: >-
@@ -84,6 +85,7 @@ worse than no contract. Decomposition waits for a stack to exist.
 | Contract | Delivers | Depends on |
 |---|---|---|
 | `SCOPE-T-01` | `skills/spec`, the documents-only path in `skills/init`, `.trellis/active` documented, and tests for the git-less case | — |
+| `SCOPE-T-02` | Bounds on where the spec skill searches, and the output paths excluded as sources | — |
 
 ## Out of scope
 
