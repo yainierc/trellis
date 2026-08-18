@@ -984,7 +984,7 @@
           <tr><td><code>hooks/</code></td><td>Write boundary, git boundary, Stop gate, per-file lint</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>scripts/lib/</code></td><td>The readers the hooks and the validator share</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>agents/</code></td><td>Analyst, implementer, reviewer</td><td class="state"><span class="pill next">next</span></td></tr>
-          <tr><td><code>skills/</code></td><td>The <code>/trellis:…</code> commands of the cycle</td><td class="state"><span class="pill later">after</span></td></tr>
+          <tr><td><code>skills/</code></td><td><code>init</code> · <code>spec</code> · <code>contract</code> — adoption, scope from documents, starting work</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>profiles/</code></td><td>Stack profiles: .NET + Angular, Bicep/Azure</td><td class="state"><span class="pill later">after</span></td></tr>
         </tbody>
       </table>
@@ -994,11 +994,13 @@
       <div class="note">
         <span class="tag">What installing it does today</span>
         <p>
-          The plugin declares <strong>four hooks and no skills or agents</strong> — verified with
-          <code>claude plugin details</code>. The hooks are the part that enforces: write boundary,
-          git boundary, Stop gate and per-file lint. They are inert in any repository without a
-          <code>.trellis/profile.yml</code>, so installing it cannot disturb work that has not opted
-          in.
+          The plugin declares <strong>four hooks and three skills</strong> — verified with
+          <code>claude plugin details trellis@skills-dir</code>. The hooks enforce: write boundary,
+          git boundary, Stop gate and per-file lint. The skills are what you invoke by asking:
+          <code>init</code> adopts a repository, <code>spec</code> turns requirement documents into a
+          spec, <code>contract</code> starts a piece of work. Everything is inert in any repository
+          without a <code>.trellis/profile.yml</code>, so installing it cannot disturb work that has
+          not opted in.
         </p>
         <p>
           The CLI reports them as <em>harness-only — no model context cost</em>. That is the
@@ -1126,8 +1128,17 @@ claude plugin tag --push</pre>
       <div class="eyebrow">Getting started</div>
       <h2>Using it in a repository</h2>
       <p class="lede">
-        All of this works today, without waiting for the hooks. The method starts paying as soon as
-        the first well-written contract exists.
+        You do not have to perform any of this. Say <em>"adopt trellis in this project"</em> and
+        <code>/trellis:init</code> reads the repo, runs each candidate command to check it actually
+        works, and writes the profile. Then <em>"start a contract to…"</em> for each piece of work.
+        The steps below are what those skills do, written out — reference rather than instructions.
+      </p>
+      <p>
+        <strong>Git is not required.</strong> The write boundary, the Stop gate and the validator all
+        work in a folder that has no repository at all — only <em>automatic</em> contract resolution
+        needs git, because it reads the branch name. So a folder of requirement PDFs and Word
+        documents is already a repository Trellis can govern, and
+        <code>/trellis:spec</code> is what turns those documents into a spec.
       </p>
     </div>
 
@@ -1179,6 +1190,12 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
             Hand the contract to a session or a subagent on a <code>task/&lt;id&gt;-&lt;slug&gt;</code>
             branch — that branch name is how every hook knows which contract it is enforcing. From
             there the write boundary, the git boundary and the Stop gate apply on their own.
+          </p>
+          <p>
+            With no git there is no branch to read, so name the contract explicitly instead:
+            <code>echo "MY-T-01" &gt; .trellis/active</code>. The hooks read that file exactly as they
+            would read a branch name. Delete it when the contract is done, or the boundary keeps
+            enforcing a contract nobody is working on.
           </p>
         </div>
       </li>
