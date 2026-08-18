@@ -48,7 +48,7 @@ trellis/
 ├── hooks/        boundaries the model cannot cross
 ├── schemas/      per-artifact rules + validators
 ├── scripts/      the checks hooks and skills call
-├── templates/    CONTRACT.md · project-profile.yml · SPEC.md · ADR.md
+├── templates/    CONTRACT.md · project-profile.yml · SPEC.md   (ADR.md still missing)
 └── profiles/     per-stack command sets
 ```
 
@@ -65,6 +65,7 @@ real repository rather than to a preference.
 | `templates/CONTRACT.md` — the unit of work | ✅ |
 | `scripts/validate-contract.mjs` — structural gate | ✅ |
 | `templates/project-profile.yml` — the tuning surface | ✅ |
+| `templates/SPEC.md` — the wave, and where cross-cutting concerns get decided | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/` — analyst, implementer, reviewer, specialists | next |
@@ -81,4 +82,6 @@ real repository rather than to a preference.
 | Stop gate on failure | Records it. The gate marks the contract `blocked` and lets the session close — blocking the stop is how you force a retry, which §8 forbids |
 | Executor | A field on the contract: a background subagent by default; a dedicated session above ~3h or across layers |
 | Done | Build + lint + fast tests + every `done_when` re-executed by the orchestrator. An adversarial review with zero must-fix findings is required before the PR, and never runs on Stop |
+| Cross-cutting concerns | Decided on the spec, never per contract: e2e verification, feature flags, environment ceilings. Detecting them automatically is refused, not pending |
+| Feature flags | Stored in the product database, no external service. Every flag declares the contract that deletes it |
 | Frontend stack | Angular, with the modern idiom (standalone, signals, `@if`/`@for`, `inject()`, typed forms) enforced by lint — because the model's default is the legacy idiom |
