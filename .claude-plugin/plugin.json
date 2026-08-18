@@ -3,7 +3,13 @@
   "name": "trellis",
   "version": "0.1.0",
   "description": "Contract-driven development framework for AI implementers under human supervision. Ships the rules, hooks, templates and validators that keep autonomous work inside declared boundaries.",
-  "author": { "name": "Yainier Caraballo" },
-  "keywords": ["guardrails", "contracts", "governance", "hooks"],
-  "license": "MIT"
+  "author": {
+    "name": "Yainier Caraballo"
+  },
+  "keywords": [
+    "guardrails",
+    "contracts",
+    "governance",
+    "hooks"
+  ]
 }

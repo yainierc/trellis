@@ -19,6 +19,11 @@ frontmatter declares, at minimum: `id`, `status`, `executor`, `agent`, `estimate
   directory. Narrow it to files, or state explicitly that the directory is the unit of change.
 - `done_when` criteria are **runnable commands** wherever a command can express them. A criterion
   that cannot be executed as written is a defect in the contract, not a step to skip.
+- **A criterion this contract cannot satisfy on its own is equally a defect.** End-to-end and other
+  cross-cutting checks belong to the wave, not to one contract — a frontend contract and a backend
+  contract each deliver half of a flow, so an E2E criterion on either of them can only fail until
+  the other lands, or be relaxed until it passes. Both outcomes are worse than not writing it. See
+  §7 and `docs/adr/0001-e2e-belongs-to-the-wave.md`.
 
 Exception: trivial mechanical work — a typo, a rename, a broken build — may proceed without a
 contract, and **must be reported as such**.
