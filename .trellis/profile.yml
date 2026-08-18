@@ -1,0 +1,64 @@
+# trellis — profile for the trellis repository itself.
+#
+# The plugin governs its own development. If a field here has to be bent to make the plugin work on
+# its own repo, that is the first signal the profile is missing something.
+
+project:
+  code: trellis
+  artifact_language: en
+  autonomy: pr
+
+paths:
+  specs: docs/specs
+  contracts: docs/contracts
+  decisions: docs/adr
+  runbooks: docs/runbooks
+  scratch: tmp
+
+git:
+  base_branch: main
+  branch_pattern: "task/{id}-{slug}"
+  worktree_root: .trellis/worktrees
+  pr_target: main
+
+commands:
+  # Pure Node, no dependencies and no build step: there is nothing to compile and nothing to
+  # install. `~` means the gate that would use it is skipped while saying so.
+  build: ~
+  test_fast: node scripts/test-hooks.mjs
+  test_slow: ~
+  lint: "find scripts hooks -name '*.mjs' -exec node --check {} \;"
+  format_check: ~
+  typecheck: ~
+  format_file: ~
+  lint_file: ~
+
+gates:
+  stop:
+    - build
+    - lint
+    - test_fast
+    - done_when
+  pre_pr:
+    - review
+    - test_slow
+
+concurrency:
+  max_parallel: 4
+  ceilings: none
+
+tracker:
+  provider: none
+  organization: ~
+  project: ~
+  identity_source: "git config trellis.trackerIdentity"
+
+rules:
+  packs: []
+  local: .claude/rules
+
+agents:
+  # Write-path boundaries per agent role, enforced by the PreToolUse hook on top of the contract's
+  # own `writes` list. An empty list means "no extra restriction beyond the contract".
+  implementer: []
+  reviewer: []

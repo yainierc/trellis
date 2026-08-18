@@ -1,0 +1,1150 @@
+<title>Trellis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  /* ── tokens: light is the base, both dark states redefine only these ─────── */
+  :root {
+    --paper:      #F2F4F1;
+    --surface:    #FFFFFF;
+    --surface-2:  #E9EDE8;
+    --ink:        #141F1C;
+    --ink-2:      #4A5854;
+    --ink-3:      #6E7C77;
+    --rule:       #D2D9D1;
+    --rule-soft:  #E2E7E1;
+
+    --teal:       #0E5B54;
+    --teal-ink:   #0E5B54;
+    --teal-soft:  #DCEAE7;
+
+    --amber:      #A25714;
+    --amber-ink:  #8A4A11;
+    --amber-soft: #F7E8D7;
+
+    --brick:      #8E3A31;
+    --brick-soft: #F6E1DE;
+
+    --shadow:     0 1px 2px rgba(20,31,28,.05), 0 8px 24px -16px rgba(20,31,28,.28);
+    --lattice:    rgba(14,91,84,.055);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1412;
+      --surface:    #151D1A;
+      --surface-2:  #1B2521;
+      --ink:        #E7EDE9;
+      --ink-2:      #A3B1AB;
+      --ink-3:      #7E8C87;
+      --rule:       #2A3733;
+      --rule-soft:  #212C29;
+
+      --teal:       #5FC2B1;
+      --teal-ink:   #7FD3C3;
+      --teal-soft:  #16302C;
+
+      --amber:      #D9954E;
+      --amber-ink:  #E5AA6C;
+      --amber-soft: #322317;
+
+      --brick:      #DA7C70;
+      --brick-soft: #33201D;
+
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+      --lattice:    rgba(95,194,177,.06);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #0E1412;
+    --surface:    #151D1A;
+    --surface-2:  #1B2521;
+    --ink:        #E7EDE9;
+    --ink-2:      #A3B1AB;
+    --ink-3:      #7E8C87;
+    --rule:       #2A3733;
+    --rule-soft:  #212C29;
+
+    --teal:       #5FC2B1;
+    --teal-ink:   #7FD3C3;
+    --teal-soft:  #16302C;
+
+    --amber:      #D9954E;
+    --amber-ink:  #E5AA6C;
+    --amber-soft: #322317;
+
+    --brick:      #DA7C70;
+    --brick-soft: #33201D;
+
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+    --lattice:    rgba(95,194,177,.06);
+  }
+
+  /* ── base ────────────────────────────────────────────────────────────────── */
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .ui {
+    font-family: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  }
+  code, pre, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+
+  a { color: var(--teal-ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px;
+  }
+
+  /* ── shell ───────────────────────────────────────────────────────────────── */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+  .col  { max-width: 68ch; }
+
+  /* ── top bar ─────────────────────────────────────────────────────────────── */
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--paper);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar-in {
+    display: flex; align-items: center; gap: 28px;
+    min-height: 54px; flex-wrap: wrap;
+  }
+  .brand {
+    font-family: "Familjen Grotesk", sans-serif; font-weight: 700;
+    letter-spacing: -.01em; font-size: 16px; color: var(--ink);
+    text-decoration: none; display: flex; align-items: center; gap: 9px;
+  }
+  .brand-mark { width: 15px; height: 15px; color: var(--teal); }
+  .navlinks { display: flex; gap: 20px; flex-wrap: wrap; margin-left: auto; }
+  .navlinks a {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 13px;
+    color: var(--ink-2); text-decoration: none;
+  }
+  .navlinks a:hover { color: var(--teal-ink); }
+
+  /* ── hero ────────────────────────────────────────────────────────────────── */
+  .hero {
+    border-bottom: 1px solid var(--rule);
+    background:
+      repeating-linear-gradient(45deg,  var(--lattice) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(-45deg, var(--lattice) 0 1px, transparent 1px 22px);
+  }
+  .hero-in { padding: 76px 0 66px; }
+  .eyebrow {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--teal-ink);
+  }
+  h1 {
+    font-size: clamp(46px, 8vw, 82px); line-height: .96; font-weight: 700;
+    letter-spacing: -.035em; margin: 16px 0 0; text-wrap: balance;
+  }
+  .deck {
+    font-size: clamp(19px, 2.2vw, 23px); line-height: 1.5; color: var(--ink-2);
+    margin: 22px 0 0; max-width: 42ch; text-wrap: pretty;
+  }
+  .deck em { color: var(--ink); font-style: italic; }
+  .meta-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 34px;
+  }
+  .chip {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 12px; font-weight: 500;
+    padding: 5px 11px; border: 1px solid var(--rule); border-radius: 999px;
+    color: var(--ink-2); background: var(--surface);
+  }
+  .chip strong { color: var(--ink); font-weight: 600; }
+
+  /* ── sections ────────────────────────────────────────────────────────────── */
+  section { padding: 62px 0; border-bottom: 1px solid var(--rule-soft); }
+  section:last-of-type { border-bottom: 0; }
+  h2 {
+    font-size: clamp(27px, 3.4vw, 36px); line-height: 1.12; font-weight: 600;
+    letter-spacing: -.022em; margin: 8px 0 18px; text-wrap: balance;
+  }
+  h3 {
+    font-size: 19px; font-weight: 600; letter-spacing: -.012em;
+    margin: 38px 0 10px; text-wrap: balance;
+  }
+  p { margin: 0 0 17px; text-wrap: pretty; }
+  .lede { font-size: 19px; color: var(--ink-2); }
+  strong { font-weight: 600; }
+
+  /* ── figures ─────────────────────────────────────────────────────────────── */
+  figure { margin: 38px 0; }
+  .fig-frame {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 24px 20px; overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+  figure svg { display: block; width: 100%; min-width: 620px; height: auto; color: var(--ink); }
+  figure.wide svg { min-width: 900px; }
+  figcaption {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 13.5px; line-height: 1.5;
+    color: var(--ink-3); margin-top: 12px; max-width: 72ch;
+  }
+  figcaption b { color: var(--ink-2); font-weight: 600; }
+
+  /* svg type helpers */
+  .s-box   { fill: var(--surface); stroke: var(--rule); stroke-width: 1.25; }
+  .s-title { font-family: "Familjen Grotesk", sans-serif; font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .s-lbl   { font-family: "Familjen Grotesk", sans-serif; font-size: 11.5px; fill: var(--ink-2); }
+  .s-tiny  { font-family: "Familjen Grotesk", sans-serif; font-size: 10.5px; fill: var(--ink-3); letter-spacing: .07em; }
+  .s-mono  { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; fill: var(--ink-3); }
+  .s-line  { stroke: var(--ink-2); stroke-width: 1.4; fill: none; }
+  .s-num   { font-family: "Familjen Grotesk", sans-serif; font-size: 10.5px; font-weight: 700; fill: var(--teal-ink); }
+  /* color modifiers — declared after the base helpers so they win at equal specificity;
+     a fill="" presentation attribute would lose to the class above */
+  .t-teal  { fill: var(--teal-ink); }
+  .t-amber { fill: var(--amber-ink); }
+  .t-brick { fill: var(--brick); }
+  .t-surf  { fill: var(--surface); }
+  .t-ink   { fill: var(--ink); }
+  .st-amber { stroke: var(--amber); }
+  .st-brick { stroke: var(--brick); }
+  .st-teal  { stroke: var(--teal); }
+
+  /* ── callouts ────────────────────────────────────────────────────────────── */
+  .note {
+    border-left: 3px solid var(--teal); background: var(--teal-soft);
+    padding: 16px 20px; border-radius: 0 3px 3px 0; margin: 26px 0;
+  }
+  .note.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--teal-ink);
+    display: block; margin-bottom: 5px;
+  }
+  .note.warn .tag { color: var(--amber-ink); }
+
+  /* ── code ────────────────────────────────────────────────────────────────── */
+  pre {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.66;
+    margin: 18px 0; color: var(--ink);
+  }
+  pre .c { color: var(--ink-3); }
+  pre .k { color: var(--teal-ink); }
+  p code, li code, td code, dd code {
+    background: var(--surface-2); padding: 1px 5px; border-radius: 2px;
+    font-size: .87em; color: var(--ink);
+  }
+
+  /* ── tables ──────────────────────────────────────────────────────────────── */
+  .tbl-wrap { overflow-x: auto; margin: 24px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 480px; }
+  th, td {
+    text-align: left; padding: 11px 14px 11px 0; border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11.5px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    border-bottom-color: var(--rule);
+  }
+  td.state { white-space: nowrap; font-family: "Familjen Grotesk", sans-serif; font-size: 13px; }
+
+  /* ── status pills ────────────────────────────────────────────────────────── */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11.5px; font-weight: 600;
+    padding: 3px 9px; border-radius: 3px; letter-spacing: .02em;
+  }
+  .pill.done  { background: var(--teal-soft);  color: var(--teal-ink); }
+  .pill.next  { background: var(--amber-soft); color: var(--amber-ink); }
+  .pill.later { background: var(--surface-2);  color: var(--ink-3); }
+
+  /* ── card grids ──────────────────────────────────────────────────────────── */
+  .cards { display: grid; gap: 18px; margin: 28px 0; }
+  @media (min-width: 780px) { .cards.two { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 22px 22px 24px; box-shadow: var(--shadow);
+  }
+  .card h3 { margin-top: 0; }
+  .card > p:last-child, .card > pre:last-child { margin-bottom: 0; }
+  .card-kicker {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3);
+  }
+
+  /* ── gate list ───────────────────────────────────────────────────────────── */
+  ul.gates { list-style: none; padding: 0; margin: 22px 0; display: grid; gap: 12px; }
+  ul.gates li {
+    display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start;
+    padding-bottom: 12px; border-bottom: 1px solid var(--rule-soft);
+  }
+  ul.gates li:last-child { border-bottom: 0; }
+  .stopmark {
+    width: 18px; height: 18px; margin-top: 4px; border-radius: 3px;
+    background: var(--amber-soft); border: 1.5px solid var(--amber);
+  }
+
+  /* ── numbered steps ──────────────────────────────────────────────────────── */
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 26px 0; display: grid; gap: 22px; }
+  ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 16px; }
+  ol.steps > li::before {
+    content: counter(s);
+    font-family: "Familjen Grotesk", sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--teal-ink); background: var(--teal-soft);
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  ol.steps h3 { margin: 2px 0 8px; font-size: 17px; }
+  ol.steps p:last-child, ol.steps pre:last-child { margin-bottom: 0; }
+
+  ul.plain { padding-left: 20px; margin: 0 0 17px; }
+  ul.plain li { margin-bottom: 8px; }
+
+  /* ── glossary ────────────────────────────────────────────────────────────── */
+  dl.gloss { margin: 24px 0 0; display: grid; gap: 0; }
+  dl.gloss > div {
+    display: grid; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--rule-soft);
+  }
+  @media (min-width: 720px) { dl.gloss > div { grid-template-columns: 200px 1fr; gap: 24px; } }
+  dl.gloss dt {
+    font-family: "Familjen Grotesk", sans-serif; font-weight: 600; font-size: 15px; color: var(--ink);
+  }
+  dl.gloss dd { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+
+  footer {
+    padding: 46px 0 60px; border-top: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 14px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+</style>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="0 0 16 16" role="img" aria-label="">
+        <g stroke="currentColor" stroke-width="1.3" fill="none">
+          <path d="M1 5h14M1 11h14M5 1v14M11 1v14"/>
+        </g>
+      </svg>
+      trellis
+    </a>
+    <nav class="navlinks">
+      <a href="#problem">The problem</a>
+      <a href="#ideas">Two ideas</a>
+      <a href="#layers">Layers</a>
+      <a href="#cycle">The cycle</a>
+      <a href="#contract">The contract</a>
+      <a href="#status">Status</a>
+      <a href="#install">Install</a>
+      <a href="#glossary">Glossary</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap hero-in">
+    <div class="eyebrow">Claude Code plugin · v0.1.0</div>
+    <h1>Trellis</h1>
+    <p class="deck">
+      A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
+      code: <em>it declares up front what may be touched, what must hold true, and where the work
+      has to stop and ask</em>.
+    </p>
+    <div class="meta-row">
+      <span class="chip"><strong>Method</strong> · contracts and gates</span>
+      <span class="chip"><strong>Vehicle</strong> · an installable plugin</span>
+      <span class="chip"><strong>Autonomy</strong> · stops at the pull request</span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- ══════════════ THE PROBLEM ══════════════ -->
+  <section id="problem">
+    <div class="col">
+      <div class="eyebrow">The problem</div>
+      <h2>Drift, not incompetence</h2>
+      <p class="lede">
+        When AI-assisted development fails, it is almost never because the model could not write the
+        code. It fails through <strong>drift</strong>: work that is reasonable up close and wrong
+        from a distance.
+      </p>
+      <p>
+        You ask for one thing and get something adjacent. It edits a file "while it was in there",
+        resolves an ambiguous requirement in its own favour, or relaxes the definition of done until
+        it matches what it built. Every individual decision makes sense. The sum does not.
+      </p>
+      <p>
+        Drift is not fixed by asking more nicely. It is fixed by making "what I asked for" a document
+        a machine can check, instead of a sentence in a chat that nobody reads again.
+      </p>
+    </div>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 1040 320" role="img" aria-label="Comparison: without a contract the deviation surfaces at the end and forces rework; with a contract every step is checked against runnable criteria.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <!-- row A -->
+          <text class="s-tiny" x="40" y="34">WITHOUT A CONTRACT</text>
+          <rect class="s-box" x="40"  y="56" width="150" height="52" rx="3"/>
+          <text class="s-title" x="115" y="87" text-anchor="middle">Idea</text>
+          <rect class="s-box" x="250" y="56" width="150" height="52" rx="3"/>
+          <text class="s-title" x="325" y="87" text-anchor="middle">Code</text>
+          <rect class="s-box" x="460" y="56" width="200" height="52" rx="3"/>
+          <text class="s-title" x="560" y="87" text-anchor="middle">Is this what I asked for?</text>
+
+          <g class="s-line" marker-end="url(#ar)">
+            <line x1="190" y1="82" x2="243" y2="82"/>
+            <line x1="400" y1="82" x2="453" y2="82"/>
+          </g>
+          <path class="s-line" d="M560 108 L560 140 L325 140 L325 115" marker-end="url(#ar)"
+                stroke-dasharray="4 3"/>
+          <text class="s-lbl" x="443" y="156" text-anchor="middle">rework</text>
+
+          <text class="s-lbl" x="700" y="76">The drift surfaces at the end,</text>
+          <text class="s-lbl" x="700" y="94">once it is expensive.</text>
+
+          <!-- divider -->
+          <line x1="40" y1="182" x2="1000" y2="182" stroke="var(--rule)" stroke-width="1"/>
+
+          <!-- row B -->
+          <text class="s-tiny t-teal" x="40" y="212">WITH A CONTRACT</text>
+          <rect class="s-box" x="40"  y="232" width="130" height="52" rx="3"/>
+          <text class="s-title" x="105" y="263" text-anchor="middle">Idea</text>
+
+          <rect x="220" y="232" width="200" height="52" rx="3"
+                fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+          <text class="s-title t-teal" x="320" y="256" text-anchor="middle">Contract</text>
+          <text class="s-mono t-teal"  x="320" y="272" text-anchor="middle">runnable criteria</text>
+
+          <rect class="s-box" x="470" y="232" width="130" height="52" rx="3"/>
+          <text class="s-title" x="535" y="263" text-anchor="middle">Code</text>
+
+          <rect x="650" y="232" width="190" height="52" rx="3"
+                fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+          <text class="s-title t-teal" x="745" y="256" text-anchor="middle">Verification</text>
+          <text class="s-mono t-teal"  x="745" y="272" text-anchor="middle">the machine re-runs it</text>
+
+          <g class="s-line" marker-end="url(#ar)">
+            <line x1="170" y1="258" x2="213" y2="258"/>
+            <line x1="420" y1="258" x2="463" y2="258"/>
+            <line x1="600" y1="258" x2="643" y2="258"/>
+            <line x1="840" y1="258" x2="890" y2="258"/>
+          </g>
+          <text class="s-title t-teal" x="905" y="263">pass / fail</text>
+        </svg>
+      </div>
+      <figcaption>
+        <b>The difference is where the error is found.</b> Without a contract the only judge is a
+        human reading the result at the end. With one, the acceptance criterion exists before the
+        code does, and a machine can run it again.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ══════════════ TWO IDEAS ══════════════ -->
+  <section id="ideas">
+    <div class="col">
+      <div class="eyebrow">The core</div>
+      <h2>Everything else follows from two ideas</h2>
+
+      <h3>1 · The unit of work is a contract, not a prompt</h3>
+      <p>
+        A contract is a file. It declares which files may be modified, what it depends on, what may
+        run beside it, and how — with commands — anyone can tell it is done.
+      </p>
+      <p>
+        That single file does four jobs at once: it is the <strong>scheduler</strong> (what can run
+        with what), the <strong>brief</strong> handed to whoever executes, the
+        <strong>rubric</strong> the reviewer grades against, and the <strong>record</strong> of what
+        was agreed. When those four live in separate documents, they drift apart.
+      </p>
+
+      <h3>2 · A rule is enforced at the earliest tier that can express it</h3>
+      <p>
+        A rule written in a document depends on the model reading it and remembering it. The same
+        rule turned into a <em>hook</em> or a test depends on nothing: the model simply cannot get
+        past it.
+      </p>
+      <p>
+        So Trellis ranks the mechanisms by strength, and treats any rule living higher than it needs
+        to as technical debt.
+      </p>
+    </div>
+
+    <figure class="wide">
+      <div class="fig-frame">
+        <svg viewBox="0 0 1120 300" role="img" aria-label="Enforcement ladder: seven tiers from strongest to weakest, from compiler to rule file. The first five are mechanical; the last two depend on the model remembering.">
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <text class="s-lbl" x="410" y="16" text-anchor="middle">moving a rule toward this end is always an improvement</text>
+          <line class="s-line" x1="760" y1="30" x2="60" y2="30" marker-end="url(#ar2)"/>
+
+          <!-- bars -->
+          <g>
+            <rect x="20"  y="80"  width="145" height="150" rx="2" fill="var(--teal)" opacity="1"/>
+            <rect x="177" y="98"  width="145" height="132" rx="2" fill="var(--teal)" opacity=".88"/>
+            <rect x="334" y="116" width="145" height="114" rx="2" fill="var(--teal)" opacity=".76"/>
+            <rect x="491" y="134" width="145" height="96"  rx="2" fill="var(--teal)" opacity=".64"/>
+            <rect x="648" y="152" width="145" height="78"  rx="2" fill="var(--teal)" opacity=".52"/>
+            <rect x="805" y="178" width="145" height="52"  rx="2" fill="var(--amber)" opacity=".62"/>
+            <rect x="962" y="192" width="145" height="38"  rx="2" fill="var(--amber)" opacity=".45"/>
+          </g>
+
+          <g text-anchor="middle">
+            <text class="s-num t-surf" x="92"  y="102">1</text>
+            <text class="s-num t-surf" x="249" y="120">2</text>
+            <text class="s-num t-surf" x="406" y="138">3</text>
+            <text class="s-num t-surf" x="563" y="156">4</text>
+            <text class="s-num t-surf" x="720" y="174">5</text>
+            <text class="s-num t-surf" x="877" y="198">6</text>
+            <text class="s-num t-surf" x="1034" y="212">7</text>
+          </g>
+
+          <g class="s-title" text-anchor="middle">
+            <text x="92"   y="250">compiler</text>
+            <text x="249"  y="250">architecture</text>
+            <text x="406"  y="250">hook</text>
+            <text x="563"  y="250">runtime test</text>
+            <text x="720"  y="250">CI script</text>
+            <text x="877"  y="250">skill</text>
+            <text x="1034" y="250">rule file</text>
+          </g>
+          <g class="s-lbl" text-anchor="middle">
+            <text x="92"   y="266">and static analysis</text>
+            <text x="249"  y="266">test</text>
+            <text x="406"  y="266">write boundaries</text>
+            <text x="563"  y="266">behaviour</text>
+            <text x="720"  y="266">only CI can see it</text>
+            <text x="877"  y="266">procedure</text>
+            <text x="1034" y="266">read and remember</text>
+          </g>
+
+          <line x1="799" y1="46" x2="799" y2="278" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="4 4"/>
+
+          <text class="s-tiny t-teal" x="400" y="292" text-anchor="middle">MECHANICAL — THE MODEL CANNOT FORGET</text>
+          <text class="s-tiny t-amber" x="955" y="292" text-anchor="middle">DEPENDS ON MEMORY</text>
+        </svg>
+      </div>
+      <figcaption>
+        <b>Height is how hard the rule bites.</b> "No commits to main" can be a hook (tier 3), so
+        writing it into a document (tier 7) throws the guarantee away. The working rule: if a machine
+        can check it, do not write it in prose.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ══════════════ LAYERS ══════════════ -->
+  <section id="layers">
+    <div class="col">
+      <div class="eyebrow">Anatomy</div>
+      <h2>Three layers, versioned separately</h2>
+      <p class="lede">
+        Confusing them is the mistake that ends in eight diverging copies of the same framework.
+      </p>
+      <p>
+        The <strong>method</strong> is the idea, and it gets documented. The <strong>plugin</strong>
+        is the vehicle, and it gets installed. The <strong>profile</strong> is each repository's
+        calibration: build and test commands, base branch, paths, autonomy level.
+      </p>
+      <p>
+        From which comes the rule that prevents forks: <strong>what you tune per project is the
+        profile, never the plugin</strong>. If you catch yourself editing the plugin to fit a repo,
+        what is missing is a field in the profile — and that is the bug.
+      </p>
+    </div>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 900 400" role="img" aria-label="Three layers: the method is documented, the plugin is installed once, and each repository supplies its own profile with its own commands.">
+          <defs>
+            <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect x="30" y="24" width="840" height="56" rx="3" fill="none"
+                stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="5 4"/>
+          <text class="s-tiny" x="46" y="46">THE METHOD · DOCUMENTED</text>
+          <text class="s-lbl"  x="46" y="66">contracts as the unit of work · the enforcement ladder · human gates · the spec → execution → verification cycle</text>
+
+          <rect x="30" y="104" width="840" height="62" rx="3"
+                fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+          <text class="s-tiny t-teal" x="46" y="126">THE PLUGIN · INSTALLED — ONE OF IT, FOR EVERY REPO</text>
+          <text class="s-mono t-teal" x="46" y="148">rules/   agents/   skills/   hooks/   schemas/   scripts/   templates/</text>
+
+          <g class="s-line st-teal" marker-end="url(#ar3)">
+            <line x1="150" y1="166" x2="150" y2="222"/>
+            <line x1="450" y1="166" x2="450" y2="222"/>
+            <line x1="750" y1="166" x2="750" y2="222"/>
+          </g>
+
+          <text class="s-tiny" x="30" y="204">THE PROFILE · EDITED IN EACH REPOSITORY</text>
+
+          <g>
+            <rect class="s-box" x="30"  y="228" width="240" height="112" rx="3"/>
+            <text class="s-title" x="46" y="252">Repo · .NET API</text>
+            <text class="s-mono t-teal" x="46" y="276">.trellis/profile.yml</text>
+            <text class="s-mono"  x="46" y="298">build:  dotnet build</text>
+            <text class="s-mono"  x="46" y="316">test:   dotnet test</text>
+
+            <rect class="s-box" x="330" y="228" width="240" height="112" rx="3"/>
+            <text class="s-title" x="346" y="252">Repo · Angular front end</text>
+            <text class="s-mono t-teal" x="346" y="276">.trellis/profile.yml</text>
+            <text class="s-mono"  x="346" y="298">build:  ng build</text>
+            <text class="s-mono"  x="346" y="316">test:   ng test</text>
+
+            <rect class="s-box" x="630" y="228" width="240" height="112" rx="3"/>
+            <text class="s-title" x="646" y="252">Repo · Bicep infra</text>
+            <text class="s-mono t-teal" x="646" y="276">.trellis/profile.yml</text>
+            <text class="s-mono"  x="646" y="298">build:  az bicep build</text>
+            <text class="s-mono"  x="646" y="316">test:   what-if</text>
+          </g>
+
+          <text class="s-lbl" x="450" y="370" text-anchor="middle">Same rules, same gates, same cycle. Only the commands change.</text>
+        </svg>
+      </div>
+      <figcaption>
+        <b>One plugin, many repositories, zero forks.</b> All three repos obey the same rules; the
+        only difference is the commands each declares in its profile. A profile field set to
+        <code>~</code> means "not applicable here", and the gate that would have used it is skipped
+        <em>while saying so</em> — never silently.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ══════════════ THE CYCLE ══════════════ -->
+  <section id="cycle">
+    <div class="col">
+      <div class="eyebrow">The lifecycle</div>
+      <h2>Who decides what, and when</h2>
+      <p class="lede">
+        This is the diagram worth understanding even if nothing else lands. The top lane is what a
+        person decides; the bottom lane is what the AI executes.
+      </p>
+      <p>
+        The two points where work rises into the human lane are not optional reviews. They are
+        <strong>stops</strong>. The AI does not continue past either one on its own.
+      </p>
+    </div>
+
+    <figure class="wide">
+      <div class="fig-frame">
+        <svg viewBox="0 0 1200 400" role="img" aria-label="Two-lane lifecycle: the person states the idea and approves the spec; the AI writes the spec, decomposes it into contracts, executes in an isolated worktree, verifies, reviews adversarially and opens the pull request; the person decides merge and deploy. If a criterion fails the contract is blocked and the person decides.">
+          <defs>
+            <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+            <marker id="ar4b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--brick)"/>
+            </marker>
+          </defs>
+
+          <rect x="36" y="30" width="1150" height="76" rx="3" fill="var(--amber-soft)"/>
+          <rect x="36" y="168" width="1150" height="104" rx="3" fill="var(--surface-2)"/>
+          <text class="s-tiny t-amber" transform="rotate(-90 20 68)" x="20" y="68" text-anchor="middle">HUMAN</text>
+          <text class="s-tiny" transform="rotate(-90 20 220)" x="20" y="220" text-anchor="middle">AI</text>
+
+          <rect x="48" y="46" width="130" height="44" rx="3" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.4"/>
+          <text class="s-title t-amber" x="113" y="73" text-anchor="middle">Idea</text>
+
+          <rect x="262" y="46" width="180" height="44" rx="3" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.8"/>
+          <text class="s-title t-amber" x="352" y="66" text-anchor="middle">GATE · approve the spec</text>
+          <text class="s-mono t-amber"  x="352" y="81" text-anchor="middle">fixing it here costs minutes</text>
+
+          <rect x="1002" y="46" width="170" height="44" rx="3" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.8"/>
+          <text class="s-title t-amber" x="1087" y="66" text-anchor="middle">GATE · merge</text>
+          <text class="s-mono t-amber"  x="1087" y="81" text-anchor="middle">and deploy</text>
+
+          <g>
+            <rect class="s-box" x="200"  y="186" width="140" height="68" rx="3"/>
+            <text class="s-num"   x="212" y="204">1</text>
+            <text class="s-title" x="270" y="222" text-anchor="middle">Spec</text>
+            <text class="s-mono"  x="270" y="240" text-anchor="middle">SPEC.md</text>
+
+            <rect class="s-box" x="364"  y="186" width="140" height="68" rx="3"/>
+            <text class="s-num"   x="376" y="204">2</text>
+            <text class="s-title" x="434" y="222" text-anchor="middle">Contracts</text>
+            <text class="s-mono"  x="434" y="240" text-anchor="middle">CONTRACT.md ×N</text>
+
+            <rect class="s-box" x="528"  y="186" width="140" height="68" rx="3"/>
+            <text class="s-num"   x="540" y="204">3</text>
+            <text class="s-title" x="598" y="222" text-anchor="middle">Execution</text>
+            <text class="s-mono"  x="598" y="240" text-anchor="middle">isolated worktree</text>
+
+            <rect x="692" y="186" width="140" height="68" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+            <text class="s-num"   x="704" y="204">4</text>
+            <text class="s-title t-teal" x="762" y="222" text-anchor="middle">Verification</text>
+            <text class="s-mono t-teal"  x="762" y="240" text-anchor="middle">build · lint · tests</text>
+
+            <rect class="s-box" x="856"  y="186" width="140" height="68" rx="3"/>
+            <text class="s-num"   x="868" y="204">5</text>
+            <text class="s-title" x="926" y="222" text-anchor="middle">Review</text>
+            <text class="s-mono"  x="926" y="240" text-anchor="middle">adversarial</text>
+
+            <rect class="s-box" x="1020" y="186" width="140" height="68" rx="3"/>
+            <text class="s-num"   x="1032" y="204">6</text>
+            <text class="s-title" x="1090" y="222" text-anchor="middle">Pull request</text>
+            <text class="s-mono"  x="1090" y="240" text-anchor="middle">nothing merges itself</text>
+          </g>
+
+          <g class="s-line" marker-end="url(#ar4)">
+            <line x1="340" y1="220" x2="358" y2="220"/>
+            <line x1="504" y1="220" x2="522" y2="220"/>
+            <line x1="668" y1="220" x2="686" y2="220"/>
+            <line x1="832" y1="220" x2="850" y2="220"/>
+            <line x1="996" y1="220" x2="1014" y2="220"/>
+          </g>
+
+          <path class="s-line" d="M113 90 L113 220 L194 220" marker-end="url(#ar4)"/>
+
+          <path class="s-line st-amber" d="M270 186 L270 148 L300 148 L300 94" marker-end="url(#ar4)"/>
+          <text class="s-lbl t-amber" x="232" y="140">proposes</text>
+          <path class="s-line st-amber" d="M404 94 L404 148 L434 148 L434 182" marker-end="url(#ar4)"/>
+          <text class="s-lbl t-amber" x="448" y="140">approved</text>
+
+          <path class="s-line st-amber" d="M1090 186 L1090 94" marker-end="url(#ar4)"/>
+          <text class="s-lbl t-amber" x="1102" y="145">hands over</text>
+
+          <path d="M762 254 L762 306" fill="none" stroke="var(--brick)" stroke-width="1.4"
+                stroke-dasharray="5 4" marker-end="url(#ar4b)"/>
+          <text class="s-lbl t-brick" x="776" y="284">a criterion fails</text>
+          <rect x="640" y="310" width="244" height="52" rx="3" fill="var(--brick-soft)" stroke="var(--brick)" stroke-width="1.4"/>
+          <text class="s-title t-brick" x="762" y="332" text-anchor="middle">blocked</text>
+          <text class="s-mono t-brick"  x="762" y="349" text-anchor="middle">no auto-retry · the human decides</text>
+        </svg>
+      </div>
+      <figcaption>
+        <b>Nothing crosses into the human lane by accident, and nothing returns to the AI lane
+        without permission.</b> Step 4 does not read the executor's report: it re-runs every
+        criterion in the contract itself. Step 5 is a reviewer instructed to <em>refute</em>, not to
+        approve — a reviewer looking for confirmation always finds it.
+      </figcaption>
+    </figure>
+
+    <div class="col">
+      <h3>Why a failure is never retried automatically</h3>
+      <p>
+        A failed criterion marks the contract <code>blocked</code> and hands the decision to a
+        person: retry with a refinement, abandon, or pause. Contracts that depended on it do not
+        start.
+      </p>
+      <p>
+        Auto-retry is tempting and is exactly how the mess accumulates: three silent attempts later
+        the tree is in a state nobody understands and the record of what was tried no longer exists.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════ THE CONTRACT ══════════════ -->
+  <section id="contract">
+    <div class="col">
+      <div class="eyebrow">The central piece</div>
+      <h2>Inside a contract</h2>
+      <p class="lede">
+        It is a text file with a data header and a prose body. The machine reads the header; whoever
+        executes reads the body.
+      </p>
+    </div>
+
+    <pre><span class="c">---</span>
+<span class="k">id</span>: SPEC-T-01                <span class="c"># unique across the whole repository</span>
+<span class="k">status</span>: pending               <span class="c"># pending · active · blocked · gated · completed · withdrawn</span>
+<span class="k">executor</span>: subagent            <span class="c"># subagent for short work · session above ~3h or across layers</span>
+<span class="k">estimate</span>: 90min
+
+<span class="k">depends_on</span>: []               <span class="c"># contracts that must be completed first</span>
+<span class="k">parallel_safe_with</span>: []       <span class="c"># what may run alongside (an assertion, not a proof)</span>
+<span class="k">reads</span>:                        <span class="c"># what it may read without modifying</span>
+  - src/App/Features/Shared/
+<span class="k">writes</span>:                       <span class="c"># ← the only paths it is allowed to modify</span>
+  - src/App/Features/Thing/
+  - tests/unit/App.Tests/Features/Thing/
+
+<span class="k">gates</span>: none                    <span class="c"># human stops this contract expects — or `none`, stated</span>
+<span class="c">---</span>
+
+<span class="k">## Objective</span>      <span class="c">what is true when this is done that is not true now</span>
+<span class="k">## Constraints</span>    <span class="c">the rules that apply, copied verbatim into the brief</span>
+<span class="k">## Steps</span>          <span class="c">the steps</span>
+<span class="k">## Done when</span>      <span class="c">criteria — runnable commands wherever a command can express them</span>
+  - [ ] `dotnet build App.sln` exits 0
+  - [ ] `dotnet test --filter Thing` exits 0
+<span class="k">## Out of scope</span>   <span class="c">what a reader might expect here and will not get, and why</span></pre>
+
+    <div class="col">
+      <h3>The three rules that make this work</h3>
+      <ul class="plain">
+        <li>
+          <strong>The contract is immutable during execution.</strong> An executor never edits its
+          own <code>writes</code>, <code>constraints</code> or <code>done_when</code>. Amending the
+          rubric you are graded against is not a shortcut, it is a categorical defect. A wrong
+          contract is fixed by a human, in a separate commit, before code is written.
+        </li>
+        <li>
+          <strong>A declared <code>none</code> is a decision; an omitted field is a gap.</strong>
+          Where the answer is "nothing", write nothing down explicitly and say why. Silence does not
+          distinguish "not applicable" from "forgot".
+        </li>
+        <li>
+          <strong>A criterion that cannot be executed is a defect in the contract</strong>, not a
+          step to skip when you reach it.
+        </li>
+      </ul>
+
+      <h3><code>writes</code> is what decides parallelism</h3>
+      <p>
+        Here is the mechanism that makes it safe to run several tasks at once. Two contracts conflict
+        when their <code>writes</code> sets overlap and neither names the other as safe. Overlap is
+        compared <strong>by path segment</strong>, not by text.
+      </p>
+    </div>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 980 340" role="img" aria-label="Two cases: when write paths overlap the contracts run serially; when they do not, they run in parallel. Comparison is by path segment, so src/App.Api/ does not overlap src/App/.">
+          <line x1="490" y1="20" x2="490" y2="300" stroke="var(--rule)" stroke-width="1"/>
+
+          <text class="s-tiny t-brick" x="24" y="34">OVERLAP → SERIAL</text>
+          <rect x="24" y="52" width="430" height="34" rx="3" fill="var(--brick-soft)" stroke="var(--brick)" stroke-width="1"/>
+          <text class="s-mono t-ink" x="40" y="73">A writes   <tspan fill="var(--brick)" font-weight="500">src/App/Features/Thing/</tspan></text>
+          <rect x="24" y="94" width="430" height="34" rx="3" fill="var(--brick-soft)" stroke="var(--brick)" stroke-width="1"/>
+          <text class="s-mono t-ink" x="40" y="115">B writes   <tspan fill="var(--brick)" font-weight="500">src/App/Features/Thing/</tspan>Foo.cs</text>
+
+          <text class="s-lbl" x="24" y="156">The second writes inside the first.</text>
+          <text class="s-lbl" x="24" y="174">They cannot run at the same time.</text>
+
+          <rect x="24"  y="206" width="200" height="26" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
+          <text class="s-title" x="124" y="224" text-anchor="middle">contract A</text>
+          <rect x="240" y="206" width="200" height="26" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
+          <text class="s-title" x="340" y="224" text-anchor="middle">contract B</text>
+          <line class="s-line" x1="24" y1="252" x2="450" y2="252"/>
+          <text class="s-tiny" x="24" y="272">TIME →</text>
+
+          <text class="s-tiny t-teal" x="524" y="34">NO OVERLAP → PARALLEL</text>
+          <rect x="524" y="52" width="430" height="34" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1"/>
+          <text class="s-mono t-ink" x="540" y="73">A writes   <tspan fill="var(--teal-ink)" font-weight="500">src/App/</tspan></text>
+          <rect x="524" y="94" width="430" height="34" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1"/>
+          <text class="s-mono t-ink" x="540" y="115">B writes   <tspan fill="var(--teal-ink)" font-weight="500">src/App.Api/</tspan></text>
+
+          <text class="s-lbl" x="524" y="156">App.Api is not a subfolder of App:</text>
+          <text class="s-lbl" x="524" y="174">the match runs segment by segment, not character by character.</text>
+
+          <rect x="524" y="200" width="380" height="26" rx="3" fill="var(--teal-soft)" stroke="var(--teal)"/>
+          <text class="s-title t-teal" x="714" y="218" text-anchor="middle">contract A</text>
+          <rect x="524" y="232" width="380" height="26" rx="3" fill="var(--teal-soft)" stroke="var(--teal)"/>
+          <text class="s-title t-teal" x="714" y="250" text-anchor="middle">contract B</text>
+          <line class="s-line" x1="524" y1="276" x2="950" y2="276"/>
+          <text class="s-tiny" x="524" y="296">TIME →</text>
+
+          <text class="s-lbl" x="490" y="326" text-anchor="middle">A detected overlap always beats the author's assertion.</text>
+        </svg>
+      </div>
+      <figcaption>
+        <b>Declaring <code>writes</code> too wide serialises the work.</b> A contract claiming
+        <code>docs/</code> conflicts with everything under <code>docs/</code>, and the whole backlog
+        queues up behind phantom conflicts. That is why the validator warns when a
+        <code>writes</code> entry names a bare directory.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ══════════════ GATES ══════════════ -->
+  <section id="gates">
+    <div class="col">
+      <div class="eyebrow">The red line</div>
+      <h2>What an agent never decides</h2>
+      <p class="lede">
+        This list is closed and does not care how green the build is. An executor that reaches one of
+        these <strong>stops and asks</strong>.
+      </p>
+      <ul class="gates">
+        <li><span class="stopmark"></span><div><strong>Pushing to a protected branch, opening or merging a PR, any deploy.</strong></div></li>
+        <li><span class="stopmark"></span><div><strong>Touching anything shared that other code depends on</strong> — a port interface, a shared host or bootstrap, a published schema.</div></li>
+        <li><span class="stopmark"></span><div><strong>Weakening an isolation or security control.</strong></div></li>
+        <li><span class="stopmark"></span><div><strong>A contradiction between the contract and the code as built.</strong></div></li>
+        <li><span class="stopmark"></span><div><strong>A decision whose wrong answer means throwing the work away.</strong></div></li>
+      </ul>
+      <div class="note warn">
+        <span class="tag">The principle</span>
+        <p>Waiting costs nothing; guessing costs the task.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ STATUS ══════════════ -->
+  <section id="status">
+    <div class="col">
+      <div class="eyebrow">Where it stands</div>
+      <h2>What exists and what does not, yet</h2>
+      <p class="lede">
+        Trellis is being built increment by increment. It is worth knowing exactly what it does today
+        before installing it, because today it does less than it will.
+      </p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Piece</th><th>What it is</th><th>State</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>rules/core.md</code></td><td>The 11 non-negotiables of the framework</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>rules/README.md</code></td><td>The ontology and the enforcement ladder</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>templates/CONTRACT.md</code></td><td>The unit of work</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>templates/project-profile.yml</code></td><td>The per-repo tuning surface</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>scripts/validate-contract.mjs</code></td><td>The structural gate, dependency-free</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>hooks/</code></td><td>Write boundary, git boundary, Stop gate, per-file lint</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>scripts/lib/</code></td><td>The readers the hooks and the validator share</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>agents/</code></td><td>Analyst, implementer, reviewer</td><td class="state"><span class="pill next">next</span></td></tr>
+          <tr><td><code>skills/</code></td><td>The <code>/trellis:…</code> commands of the cycle</td><td class="state"><span class="pill later">after</span></td></tr>
+          <tr><td><code>profiles/</code></td><td>Stack profiles: .NET + Angular, Bicep/Azure</td><td class="state"><span class="pill later">after</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col">
+      <div class="note">
+        <span class="tag">What installing it does today</span>
+        <p>
+          The plugin declares <strong>four hooks and no skills or agents</strong> — verified with
+          <code>claude plugin details</code>. The hooks are the part that enforces: write boundary,
+          git boundary, Stop gate and per-file lint. They are inert in any repository without a
+          <code>.trellis/profile.yml</code>, so installing it cannot disturb work that has not opted
+          in.
+        </p>
+        <p>
+          The CLI reports them as <em>harness-only — no model context cost</em>. That is the
+          enforcement ladder measured rather than argued: the same rule as prose in
+          <code>rules/core.md</code> is paid for in every session in the repo.
+        </p>
+      </div>
+      <p>
+        What is still prose is the part that needs roles to exist: the analyst that produces a spec
+        and stops dead at a human gate, and the implementer that executes an approved one. Those are
+        the next increment.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════ INSTALL ══════════════ -->
+  <section id="install">
+    <div class="col">
+      <div class="eyebrow">Installation</div>
+      <h2>How a Claude Code plugin gets installed</h2>
+      <p class="lede">
+        There are two paths, and they serve different purposes. The first is for working on the
+        plugin; the second is for handing it to the team.
+      </p>
+      <p>
+        Every command below was verified against CLI version <code>2.1.234</code>.
+      </p>
+    </div>
+
+    <div class="cards two">
+      <div class="card">
+        <div class="card-kicker">Path A · for developing it</div>
+        <h3>Link it as a skills directory</h3>
+        <p>
+          Claude Code auto-loads any plugin it finds in <code>~/.claude/skills/</code>. No
+          marketplace, no install step, nothing to version: one symlink and it is there in the next
+          session.
+        </p>
+        <pre>ln -s ~/GMSTEK/trellis ~/.claude/skills/trellis</pre>
+        <p>To confirm it is seen:</p>
+        <pre>claude plugin details trellis@skills-dir</pre>
+        <p>
+          Edit a file in the repo and the change is live in the next session. This is the right mode
+          while the plugin changes daily. To remove it:
+          <code>rm ~/.claude/skills/trellis</code>.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-kicker">Path B · for the team</div>
+        <h3>Publish it as a marketplace</h3>
+        <p>
+          A <em>marketplace</em> is a catalogue: a JSON file listing which plugins exist and where.
+          It can live in the Trellis repo itself. Add
+          <code>.claude-plugin/marketplace.json</code>:
+        </p>
+        <pre>{
+  <span class="k">"name"</span>: "gmstek",
+  <span class="k">"description"</span>: "GMSTEK internal plugins.",
+  <span class="k">"owner"</span>: { <span class="k">"name"</span>: "GMSTEK" },
+  <span class="k">"plugins"</span>: [
+    { <span class="k">"name"</span>: "trellis", <span class="k">"source"</span>: "./" }
+  ]
+}</pre>
+        <p>Then each teammate runs, once:</p>
+        <pre>claude plugin marketplace add GMSTEK/trellis
+claude plugin install trellis@gmstek</pre>
+        <p>
+          With <code>--scope project</code> the marketplace is declared in the repository's own
+          settings, so it travels with the project instead of person by person.
+        </p>
+      </div>
+    </div>
+
+    <div class="col">
+      <h3>Validate before publishing anything</h3>
+      <p>
+        The CLI checks that the manifest is well formed. Against the current Trellis manifest it
+        already passes clean:
+      </p>
+      <pre>claude plugin validate ~/GMSTEK/trellis
+<span class="c">✔ Validation passed</span></pre>
+
+      <div class="note">
+        <span class="tag">Outstanding</span>
+        <p>
+          Trellis is not a git repository yet. For a plugin several repos will install, it is worth
+          versioning from the start — Path B needs it, because a marketplace resolves against a repo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ GETTING STARTED ══════════════ -->
+  <section id="start">
+    <div class="col">
+      <div class="eyebrow">Getting started</div>
+      <h2>Using it in a repository</h2>
+      <p class="lede">
+        All of this works today, without waiting for the hooks. The method starts paying as soon as
+        the first well-written contract exists.
+      </p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>Copy the profile into the target repository</h3>
+          <pre>mkdir -p .trellis
+cp ~/GMSTEK/trellis/templates/project-profile.yml .trellis/profile.yml</pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Fill in that repo's real commands</h3>
+          <p>
+            Build, fast tests, lint, base branch. Anything that does not apply is marked
+            <code>~</code>, which means "there is none here" — and the gate that would have used it
+            is skipped while saying so, never silently.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Write the first contract</h3>
+          <p>
+            Copy <code>templates/CONTRACT.md</code> and fill it in for a small, real piece of work.
+            The part that costs the most and returns the most is <code>done_when</code>: it forces
+            you to decide, before any code is written, how "done" will be checked.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Validate it</h3>
+          <p>No dependencies — Node is all you need:</p>
+          <pre>node ~/GMSTEK/trellis/scripts/validate-contract.mjs docs/contracts/SPEC-T-01.md</pre>
+          <p>
+            Run it over the whole directory with <code>--all</code> to add the cross-contract checks:
+            dependency cycles, references to contracts that do not exist, and <code>writes</code>
+            overlaps between two contracts that declare each other safe.
+          </p>
+          <pre>node ~/GMSTEK/trellis/scripts/validate-contract.mjs docs/contracts --all</pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Execute it, and do not believe the report</h3>
+          <p>
+            Hand the contract to a session or a subagent on a <code>task/&lt;id&gt;-&lt;slug&gt;</code>
+            branch — that branch name is how every hook knows which contract it is enforcing. From
+            there the write boundary, the git boundary and the Stop gate apply on their own.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════ DECAY ══════════════ -->
+  <section id="decay">
+    <div class="col">
+      <div class="eyebrow">Maintenance</div>
+      <h2>Signals that the framework is decaying</h2>
+      <p class="lede">
+        These are leading indicators. Any one of them is a reason to pause product work and repair
+        the loop.
+      </p>
+      <ul class="plain">
+        <li>A contract reported complete left the build or tests broken → the <code>done_when</code> set is insufficient.</li>
+        <li>One session discovered a convention and the next ignored it → the learning loop is broken.</li>
+        <li>Two contracts declared each other safe and collided at merge → <code>writes</code> is under-declared; widen it, do not loosen the check.</li>
+        <li>A rule keeps being restated in prompts because it keeps being violated → it belongs lower on the ladder.</li>
+        <li>Memory and rule files only ever grow → nothing is being pruned, and context cost rises for every session in the repo.</li>
+        <li>A human re-reviews the same class of defect every week → that defect class needs a gate, not more review.</li>
+      </ul>
+      <div class="note">
+        <span class="tag">Institutional memory</span>
+        <p>
+          When a real failure costs real time, its symptom, cause and fix are recorded with the date
+          in the skill that allowed it. That table is what stops the next session from tripping the
+          same wire, and it is never trimmed for tidiness.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ GLOSSARY ══════════════ -->
+  <section id="glossary">
+    <div class="col">
+      <div class="eyebrow">Glossary</div>
+      <h2>The terms, in plain words</h2>
+      <dl class="gloss">
+        <div><dt>Contract</dt><dd>A file declaring what may be touched, what must hold, and how it is checked. The unit of work.</dd></div>
+        <div><dt>Spec</dt><dd>The document that turns "I want X" into concrete acceptance criteria. Approved before any code is written.</dd></div>
+        <div><dt>Gate</dt><dd>A mandatory stop where a person decides. Not an after-the-fact review: the work does not move until there is an answer.</dd></div>
+        <div><dt>Hook</dt><dd>A check the system runs automatically before or after an action. The model can neither skip nor forget it.</dd></div>
+        <div><dt>Skill</dt><dd>A procedure written once so it is not re-improvised each session. Invoked as <code>/trellis:something</code>.</dd></div>
+        <div><dt>Agent</dt><dd>A role with a tool set and a stopping condition: the one that analyses, the one that implements, the one that reviews.</dd></div>
+        <div><dt>Subagent</dt><dd>A task running in the background with its own context. For short work; long work asks for a dedicated session.</dd></div>
+        <div><dt>Worktree</dt><dd>An isolated copy of the repository for a single task. A failed experiment gets deleted instead of unwound.</dd></div>
+        <div><dt>Adversarial review</dt><dd>A reviewer explicitly briefed to refute the work, with no access to the author's report. Only artifacts count.</dd></div>
+        <div><dt>Drift</dt><dd>Work that is locally reasonable and globally wrong. The failure mode that gives everything above its purpose.</dd></div>
+        <div><dt>ADR</dt><dd>The record of a decision taken. A recorded decision is not relitigated without a new ADR — and what was refused is recorded as refused, with its reason.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <footer class="col">
+    <p>
+      Trellis v0.1.0 · a Claude Code plugin · by Yainier Caraballo.<br>
+      Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
+      a preference.
+    </p>
+  </footer>
+</main>

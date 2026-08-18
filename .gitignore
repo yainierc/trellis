@@ -1,0 +1,5 @@
+# trellis scratch — gitignored, and never referenced from a committed file (rules/README.md §3)
+tmp/
+.trellis/worktrees/
+.trellis/active
+.DS_Store

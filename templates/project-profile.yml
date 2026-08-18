@@ -1,0 +1,77 @@
+# trellis — per-repository profile
+#
+# The plugin is generic; everything repo-specific lives here. Copy this file to
+# `.trellis/profile.yml` in the target repository and fill it in. Skills read this file instead of
+# hardcoding commands, paths or branch names — that is what keeps one plugin serving every repo.
+
+project:
+  code: ~                      # short project code used in ids and resource names
+  artifact_language: en        # language of every generated artifact, whatever language the
+                               # conversation happens in
+  autonomy: pr                 # pr = the AI stops at the pull request; nothing merges or deploys
+                               # without a human
+
+paths:
+  specs: openspec/changes      # where specs / change proposals live
+  contracts: docs/contracts    # where contract files live: pending/ active/ completed/
+  decisions: docs/adr          # decision records
+  runbooks: docs/runbooks
+  scratch: tmp                 # gitignored; never referenced from a committed file
+
+git:
+  base_branch: main
+  branch_pattern: "task/{id}-{slug}"
+  worktree_root: .trellis/worktrees
+  # PR target. Set to an integration branch when a whole spec must land as one PR — and read the
+  # cost first: session PRs into an integration branch get NO CI signal until the final merge.
+  pr_target: main
+
+commands:
+  # Every command runs from the repository root. `~` means "not applicable in this repo" and the
+  # gate that would use it is skipped with that stated — never silently.
+  build: ~
+  test_fast: ~                 # unit + architecture + build tests: must fail in under a minute
+  test_slow: ~                 # integration + contract: real dependencies
+  lint: ~
+  format_check: ~
+  typecheck: ~
+  # Per-file commands, run by the PostToolUse hook on the file that was just written.
+  format_file: ~               # receives the file path as its last argument
+  lint_file: ~
+
+gates:
+  # The Stop gate: an executor cannot report a contract complete until all of these pass.
+  stop:
+    - build
+    - lint
+    - test_fast
+    - done_when                # every criterion in the contract, re-executed
+  # Required before a pull request is opened. Costs tokens, so it never runs on Stop.
+  pre_pr:
+    - review                   # adversarial reviewer, zero must-fix findings
+    - test_slow
+
+concurrency:
+  max_parallel: 4
+  # Hard ceilings that are not about tokens — dev-server ports, CORS allow-lists, licence seats.
+  # State them or the fleet will exceed them and the failure will look like broken code.
+  ceilings: none
+
+tracker:
+  provider: none               # none | ado
+  organization: ~
+  project: ~
+  # Identity used to assign work items. Resolved per developer, never hardcoded in a committed file.
+  identity_source: "git config trellis.trackerIdentity"
+
+rules:
+  # Rule packs layered on top of trellis/rules. Company and stack packs install separately.
+  packs: []
+  # Repo-local rules, read before touching the matching area.
+  local: .claude/rules
+
+agents:
+  # Write-path boundaries, enforced by the PreToolUse hook. An agent that is not listed may write
+  # nothing. Keep this table narrower than you think you need.
+  implementer: []
+  reviewer: []

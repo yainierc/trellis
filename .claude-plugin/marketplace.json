@@ -1,0 +1,13 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "gmstek",
+  "description": "GMSTEK internal Claude Code plugins.",
+  "owner": { "name": "GMSTEK" },
+  "plugins": [
+    {
+      "name": "trellis",
+      "source": "./",
+      "description": "Contract-driven development framework for AI implementers under human supervision."
+    }
+  ]
+}
