@@ -958,7 +958,10 @@
         plugin; the second is for handing it to the team.
       </p>
       <p>
-        Every command below was verified against CLI version <code>2.1.234</code>.
+        Every command below was verified against CLI version <code>2.1.234</code>. The only
+        prerequisite is <strong>Node on the PATH</strong> — the hooks and the validator are plain
+        Node ESM with no dependencies, so there is no build step, no bundle and no installer. A
+        plugin is distributed as its source.
       </p>
     </div>
 
@@ -1001,8 +1004,9 @@
         <pre>claude plugin marketplace add GMSTEK/trellis
 claude plugin install trellis@gmstek</pre>
         <p>
-          With <code>--scope project</code> the marketplace is declared in the repository's own
-          settings, so it travels with the project instead of person by person.
+          With <code>--scope project</code> the marketplace is written to the repository's own
+          <code>.claude/settings.json</code> as <code>extraKnownMarketplaces</code>, so it travels
+          with the project instead of being added person by person.
         </p>
       </div>
     </div>
@@ -1016,11 +1020,28 @@ claude plugin install trellis@gmstek</pre>
       <pre>claude plugin validate ~/GMSTEK/trellis
 <span class="c">✔ Validation passed</span></pre>
 
+      <h3>Releasing a change</h3>
+      <p>
+        The install cache is keyed by version, and this is the one operational trap worth knowing
+        before the team depends on it: pushing new commits without touching
+        <code>version</code> in <code>plugin.json</code> leaves everyone on the old code.
+        <code>claude plugin update</code> will cheerfully answer
+        <em>already at the latest version</em> and pull nothing.
+      </p>
+      <p>
+        So every release bumps the version, and <code>claude plugin tag</code> creates the
+        <code>trellis--v0.1.0</code> tag while checking that <code>plugin.json</code> and the
+        marketplace entry agree about it:
+      </p>
+      <pre>claude plugin tag --dry-run          <span class="c"># check before committing to it</span>
+claude plugin tag --push</pre>
+
       <div class="note">
         <span class="tag">Outstanding</span>
         <p>
-          Trellis is not a git repository yet. For a plugin several repos will install, it is worth
-          versioning from the start — Path B needs it, because a marketplace resolves against a repo.
+          The repository has no remote yet. Path B resolves a marketplace against a repo, so the
+          <code>marketplace add</code> argument is whatever the remote ends up being called.
+          Publishing it is a human decision, not an automated one.
         </p>
       </div>
     </div>
