@@ -52,12 +52,12 @@
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 { font-family: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif; }
-  code, pre { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  code, pre, .say { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
 
-  .wrap { max-width: 780px; margin: 0 auto; padding: 0 26px; }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 0 26px; }
 
   .hero {
-    border-bottom: 1px solid var(--rule); padding: 52px 0 40px;
+    border-bottom: 1px solid var(--rule); padding: 50px 0 38px;
     background:
       repeating-linear-gradient(45deg,  var(--lattice) 0 1px, transparent 1px 22px),
       repeating-linear-gradient(-45deg, var(--lattice) 0 1px, transparent 1px 22px);
@@ -67,15 +67,15 @@
     letter-spacing: .13em; text-transform: uppercase; color: var(--teal-ink);
   }
   h1 {
-    font-size: clamp(34px, 6vw, 48px); line-height: 1.02; font-weight: 700;
+    font-size: clamp(32px, 5.6vw, 46px); line-height: 1.03; font-weight: 700;
     letter-spacing: -.03em; margin: 14px 0 0; text-wrap: balance;
   }
-  .deck { color: var(--ink-2); margin: 14px 0 0; font-size: 18px; max-width: 52ch; text-wrap: pretty; }
+  .deck { color: var(--ink-2); margin: 14px 0 0; font-size: 18px; max-width: 54ch; text-wrap: pretty; }
 
-  section { padding: 40px 0; border-bottom: 1px solid var(--rule-soft); }
+  section { padding: 38px 0; border-bottom: 1px solid var(--rule-soft); }
   section:last-of-type { border-bottom: 0; }
   h2 {
-    font-size: 25px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 6px;
+    font-size: 24px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 6px;
     display: flex; align-items: baseline; gap: 12px; text-wrap: balance;
   }
   h2 .n {
@@ -84,9 +84,22 @@
     align-items: center; justify-content: center; flex: none;
     font-variant-numeric: tabular-nums; transform: translateY(-2px);
   }
-  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 8px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 24px 0 8px; }
   p { margin: 0 0 14px; text-wrap: pretty; }
-  .sub { color: var(--ink-2); margin-bottom: 18px; }
+  .sub { color: var(--ink-2); margin-bottom: 16px; }
+
+  /* what you say to the agent — the primary instruction on this page */
+  .say {
+    display: block; background: var(--teal-soft); border: 1px solid var(--teal);
+    border-left-width: 4px; border-radius: 0 4px 4px 0;
+    padding: 15px 18px; margin: 16px 0; font-size: 15px; color: var(--ink);
+  }
+  .say .who {
+    font-family: "Familjen Grotesk", sans-serif; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .11em; text-transform: uppercase; color: var(--teal-ink);
+    display: block; margin-bottom: 6px;
+  }
+  .say b { font-weight: 500; }
 
   pre {
     background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
@@ -94,17 +107,17 @@
     margin: 14px 0; color: var(--ink);
   }
   pre .c { color: var(--ink-3); }
-  p code, li code, td code {
+  p code, li code, td code, summary code {
     background: var(--surface-2); padding: 1px 5px; border-radius: 2px;
     font-size: .87em; color: var(--ink);
   }
 
-  figure { margin: 26px 0; }
+  figure { margin: 24px 0; }
   .fig {
     background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
     padding: 20px 16px; overflow-x: auto; box-shadow: var(--shadow);
   }
-  figure svg { display: block; width: 100%; min-width: 560px; height: auto; color: var(--ink); }
+  figure svg { display: block; width: 100%; min-width: 580px; height: auto; color: var(--ink); }
   figcaption {
     font-family: "Familjen Grotesk", sans-serif; font-size: 13px; line-height: 1.5;
     color: var(--ink-3); margin-top: 10px;
@@ -112,14 +125,14 @@
   .s-box   { fill: var(--surface); stroke: var(--rule); stroke-width: 1.25; }
   .s-title { font-family: "Familjen Grotesk", sans-serif; font-size: 12.5px; font-weight: 600; fill: var(--ink); }
   .s-lbl   { font-family: "Familjen Grotesk", sans-serif; font-size: 11px; fill: var(--ink-2); }
+  .s-tiny  { font-family: "Familjen Grotesk", sans-serif; font-size: 10px; fill: var(--ink-3); letter-spacing: .08em; }
   .s-mono  { font-family: "IBM Plex Mono", monospace; font-size: 10px; fill: var(--ink-3); }
   .s-line  { stroke: var(--ink-2); stroke-width: 1.35; fill: none; }
   .t-teal  { fill: var(--teal-ink); }
   .t-amber { fill: var(--amber-ink); }
   .t-brick { fill: var(--brick); }
-  .st-amber { stroke: var(--amber); }
 
-  .tbl { overflow-x: auto; margin: 18px 0; }
+  .tbl { overflow-x: auto; margin: 16px 0; }
   table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 460px; }
   th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
   th {
@@ -129,7 +142,7 @@
 
   .note {
     border-left: 3px solid var(--amber); background: var(--amber-soft);
-    padding: 14px 18px; border-radius: 0 3px 3px 0; margin: 20px 0;
+    padding: 14px 18px; border-radius: 0 3px 3px 0; margin: 18px 0;
   }
   .note.ok { border-left-color: var(--teal); background: var(--teal-soft); }
   .note p:last-child { margin-bottom: 0; }
@@ -143,7 +156,18 @@
   ul { padding-left: 20px; margin: 0 0 14px; }
   li { margin-bottom: 6px; }
 
-  footer { padding: 32px 0 48px; color: var(--ink-3); font-size: 14px; }
+  details {
+    border: 1px solid var(--rule); border-radius: 3px; padding: 12px 16px;
+    background: var(--surface); margin: 16px 0;
+  }
+  summary {
+    font-family: "Familjen Grotesk", sans-serif; font-weight: 600; font-size: 15px;
+    cursor: pointer; color: var(--ink);
+  }
+  summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+  details[open] summary { margin-bottom: 10px; }
+
+  footer { padding: 30px 0 46px; color: var(--ink-3); font-size: 14px; }
   a { color: var(--teal-ink); text-underline-offset: 3px; }
   a:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -151,11 +175,11 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.2.0</div>
+    <div class="eyebrow">Trellis · v0.3.0</div>
     <h1>Quickstart</h1>
     <p class="deck">
-      Install the plugin, tell one repository about it, and do a first piece of work under contract.
-      Ten minutes, four commands.
+      Two commands to install, then one sentence per thing you want. Claude Code does the setup —
+      it can read your repo and run your build, which is more than a page of instructions can do.
     </p>
   </div>
 </div>
@@ -164,228 +188,253 @@
 
   <!-- 1 · INSTALL -->
   <section>
-    <h2><span class="n">1</span> Install</h2>
+    <h2><span class="n">1</span> Install the plugin</h2>
     <p class="sub">
-      There is no build and no installer — a plugin is distributed as source. The only prerequisite
-      is <strong>Node on your PATH</strong>.
+      This part is yours — the plugin has to exist before an agent can use it. No build, no
+      installer; a plugin is distributed as source. The only prerequisite is <strong>Node on your
+      PATH</strong>.
     </p>
     <pre>claude plugin marketplace add yainierc/trellis
 claude plugin install trellis@gmstek</pre>
-    <p>Check it landed:</p>
-    <pre>claude plugin details trellis@gmstek
-<span class="c">  Hooks (4)  PreToolUse, PostToolUse, Stop, SubagentStop</span></pre>
-    <p>
-      Keep the plugin path handy — the templates and the validator live inside it:
-    </p>
-    <pre>TRELLIS=$(echo ~/.claude/plugins/cache/gmstek/trellis/*/)</pre>
+    <p>Restart your session, or run <code>/reload-plugins</code>.</p>
   </section>
 
-  <!-- 2 · WIRE UP A REPO -->
+  <!-- 2 · ADOPT -->
   <section>
-    <h2><span class="n">2</span> Wire up a repository</h2>
+    <h2><span class="n">2</span> Ask Claude Code to adopt it</h2>
     <p class="sub">
-      Installing changes nothing on its own. A repository opts in by carrying a profile — the file
-      that tells Trellis how to build, test and lint <em>here</em>.
+      Open a session in the repository you want under Trellis and say it. Nothing else.
     </p>
-    <pre>mkdir -p .trellis
-cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
-    <p>Open it and fill in the commands that actually exist in this repo:</p>
-    <pre>commands:
-  build:     dotnet build MySolution.sln
-  test_fast: dotnet test --filter Category=Unit
-  lint:      ~                      <span class="c"># `~` = none here; the gate is skipped and says so</span>
-
-git:
-  base_branch:    main
-  branch_pattern: "task/{id}-{slug}"</pre>
-    <div class="note">
-      <span class="tag">Read this once</span>
+    <span class="say">
+      <span class="who">You say</span>
+      <b>Adopt trellis in this project</b>
+    </span>
+    <p>
+      That runs <code>/trellis:init</code>. What it does, and why it is better than you doing it by
+      hand:
+    </p>
+    <ul>
+      <li><strong>Reads the repo</strong> to find the stack — your <code>package.json</code> scripts, your <code>.sln</code>, your Bicep files — instead of assuming.</li>
+      <li><strong>Runs every candidate command</strong> and watches whether it works before writing it into the profile. It tells the difference between "that command does not exist" and "your repo is red right now". Only the first disqualifies a command.</li>
+      <li><strong>Writes <code>.trellis/profile.yml</code></strong>, marking anything this repo does not have as <code>~</code> — a real answer, not a blank.</li>
+      <li><strong>Creates the directories</strong> for specs, contracts and decisions, and gitignores the scratch path.</li>
+      <li><strong>Tells you enforcement is still silent</strong>, and what turns it on.</li>
+    </ul>
+    <div class="note ok">
+      <span class="tag">Why verifying matters</span>
       <p>
-        A field set to <code>~</code> means "not applicable here". The gate that would have used it
-        is skipped <em>out loud</em>, never silently. Leaving a real command out is not the same as
-        declaring there isn't one.
+        A profile holding a plausible command that does not exist is the one setup mistake that makes
+        Trellis untrustworthy: the Stop gate runs those commands every time a session closes, so a
+        wrong one marks perfectly good work <code>blocked</code> and sends you debugging code that is
+        fine. Running them once at setup removes the whole failure class.
       </p>
     </div>
+    <p>
+      It will ask before overwriting a profile you already tuned, and it will ask you to confirm the
+      short project code that goes into contract ids.
+    </p>
   </section>
 
-  <!-- 3 · WHEN IS IT ON -->
+  <!-- 3 · WORK -->
   <section>
-    <h2><span class="n">3</span> Know when it is guarding you</h2>
-    <p class="sub">
-      Trellis is deliberately silent outside the situation it was built for. Two conditions arm it,
-      and both must hold.
+    <h2><span class="n">3</span> Ask for a piece of work</h2>
+    <p class="sub">One sentence per task. The contract gets written for you, and then held against you.</p>
+    <span class="say">
+      <span class="who">You say</span>
+      <b>Start a contract to add rate limiting to the payments endpoint</b>
+    </span>
+    <p>
+      That runs <code>/trellis:contract</code>: it reads enough of the repo to write a contract that
+      stands alone, declares which paths it may touch and how "done" gets checked as runnable
+      commands, validates it, and branches — which is the step that arms the guardrails.
     </p>
 
     <figure>
       <div class="fig">
-        <svg viewBox="0 0 700 240" role="img" aria-label="Enforcement is armed only when the repository has a .trellis/profile.yml and the current branch matches the contract branch pattern; otherwise the hooks stay silent.">
+        <svg viewBox="0 0 760 250" role="img" aria-label="Three columns: what you say, what Claude Code does in response, and what the harness enforces mechanically. Saying adopt trellis runs init once per repo; saying start a contract runs the contract skill per task; the harness then enforces the write boundary, the git boundary and the Stop gate; pushing, opening the pull request and merging stay with the person.">
           <defs>
             <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
             </marker>
           </defs>
 
-          <rect class="s-box" x="16" y="30" width="150" height="52" rx="3"/>
-          <text class="s-title" x="91" y="52" text-anchor="middle">Any repo</text>
-          <text class="s-mono"  x="91" y="69" text-anchor="middle">no profile</text>
+          <text class="s-tiny t-teal" x="14"  y="22">YOU SAY</text>
+          <text class="s-tiny"       x="272" y="22">CLAUDE CODE DOES</text>
+          <text class="s-tiny t-amber" x="556" y="22">THE HARNESS ENFORCES</text>
+          <line x1="256" y1="8" x2="256" y2="238" stroke="var(--rule)" stroke-width="1"/>
+          <line x1="540" y1="8" x2="540" y2="238" stroke="var(--rule)" stroke-width="1"/>
 
-          <rect class="s-box" x="16" y="130" width="150" height="52" rx="3"/>
-          <text class="s-title" x="91" y="152" text-anchor="middle">Your repo</text>
-          <text class="s-mono"  x="91" y="169" text-anchor="middle">.trellis/profile.yml</text>
+          <!-- row 1: adopt -->
+          <rect x="14" y="38" width="228" height="46" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+          <text class="s-title t-teal" x="28" y="58">“Adopt trellis here”</text>
+          <text class="s-mono t-teal"  x="28" y="74">once per repository</text>
 
-          <rect class="s-box" x="250" y="130" width="170" height="52" rx="3"/>
-          <text class="s-title" x="335" y="152" text-anchor="middle">On a task branch?</text>
-          <text class="s-mono"  x="335" y="169" text-anchor="middle">task/&lt;id&gt;-&lt;slug&gt;</text>
+          <rect class="s-box" x="272" y="38" width="248" height="46" rx="3"/>
+          <text class="s-title" x="286" y="58">/trellis:init</text>
+          <text class="s-mono"  x="286" y="74">detects · runs · writes profile.yml</text>
 
-          <rect x="504" y="118" width="180" height="46" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.5"/>
-          <text class="s-title t-teal" x="594" y="146" text-anchor="middle">ARMED</text>
+          <!-- row 2: contract -->
+          <rect x="14" y="106" width="228" height="46" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
+          <text class="s-title t-teal" x="28" y="126">“Start a contract to…”</text>
+          <text class="s-mono t-teal"  x="28" y="142">once per piece of work</text>
 
-          <rect x="504" y="26" width="180" height="46" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
-          <text class="s-title" x="594" y="54" text-anchor="middle">silent</text>
+          <rect class="s-box" x="272" y="106" width="248" height="46" rx="3"/>
+          <text class="s-title" x="286" y="126">/trellis:contract</text>
+          <text class="s-mono"  x="286" y="142">writes · validates · branches</text>
+
+          <!-- enforcement -->
+          <rect x="556" y="70" width="192" height="118" rx="3" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="1.5"/>
+          <text class="s-title t-amber" x="570" y="92">write boundary</text>
+          <text class="s-title t-amber" x="570" y="112">git boundary</text>
+          <text class="s-title t-amber" x="570" y="132">Stop gate</text>
+          <text class="s-mono t-amber"  x="570" y="152">no context cost</text>
+          <text class="s-mono t-amber"  x="570" y="168">nothing to remember</text>
 
           <g class="s-line" marker-end="url(#a1)">
-            <line x1="166" y1="56"  x2="498" y2="50"/>
-            <line x1="166" y1="156" x2="244" y2="156"/>
-            <line x1="420" y1="156" x2="498" y2="142"/>
-            <line x1="335" y1="182" x2="335" y2="204"/>
+            <line x1="242" y1="61"  x2="266" y2="61"/>
+            <line x1="242" y1="129" x2="266" y2="129"/>
+            <line x1="520" y1="129" x2="550" y2="129"/>
           </g>
-          <line class="s-line" x1="335" y1="204" x2="590" y2="204" marker-end="url(#a1)"/>
-          <line class="s-line" x1="590" y1="204" x2="590" y2="76" marker-end="url(#a1)"/>
 
-          <text class="s-lbl t-teal"  x="440" y="146">yes</text>
-          <text class="s-lbl" x="348" y="198">no</text>
-          <text class="s-lbl" x="300" y="44">no profile → never enforces</text>
+          <text class="s-lbl" x="286" y="176">the branch is what arms them →</text>
+
+          <!-- outcome -->
+          <line class="s-line" x1="652" y1="188" x2="652" y2="212" marker-end="url(#a1)"/>
+          <rect x="556" y="212" width="192" height="30" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
+          <text class="s-title" x="652" y="232" text-anchor="middle">you push, PR and merge</text>
         </svg>
       </div>
       <figcaption>
-        Silence is the normal state. If you expect it armed and it is silent, check the branch name
-        first — that is how every hook knows which contract it is enforcing.
+        You say two kinds of sentence. Everything in the right column runs whether or not anyone
+        remembers it exists — that is the point of putting it in the harness instead of in a document.
       </figcaption>
     </figure>
   </section>
 
-  <!-- 4 · THE LOOP -->
+  <!-- 4 · ARMED -->
   <section>
-    <h2><span class="n">4</span> Do a piece of work</h2>
-    <p class="sub">
-      A spec answers what and why for a whole capability. A contract is one unit of work inside it.
-      The branch is what turns the guardrails on.
-    </p>
+    <h2><span class="n">4</span> Know when it is guarding you</h2>
+    <p class="sub">Trellis is deliberately silent outside the situation it was built for. Two conditions arm it, and both must hold.</p>
 
     <figure>
       <div class="fig">
-        <svg viewBox="0 0 740 220" role="img" aria-label="The working loop: write a spec, write a contract, validate it, branch, work under the write and git boundaries, then the Stop gate re-runs every criterion and either passes or marks the contract blocked.">
+        <svg viewBox="0 0 700 230" role="img" aria-label="Enforcement is armed only when the repository has a .trellis/profile.yml and the current branch matches the contract branch pattern; otherwise the hooks stay silent.">
           <defs>
             <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
             </marker>
-            <marker id="a2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0 0 L10 5 L0 10 z" fill="var(--brick)"/>
-            </marker>
           </defs>
 
-          <g>
-            <rect class="s-box" x="14"  y="40" width="128" height="56" rx="3"/>
-            <text class="s-title" x="78" y="63" text-anchor="middle">Spec</text>
-            <text class="s-mono"  x="78" y="80" text-anchor="middle">the capability</text>
+          <rect class="s-box" x="16" y="26" width="150" height="50" rx="3"/>
+          <text class="s-title" x="91" y="47" text-anchor="middle">Any repo</text>
+          <text class="s-mono"  x="91" y="64" text-anchor="middle">no profile</text>
 
-            <rect class="s-box" x="166" y="40" width="128" height="56" rx="3"/>
-            <text class="s-title" x="230" y="63" text-anchor="middle">Contract</text>
-            <text class="s-mono"  x="230" y="80" text-anchor="middle">writes · done_when</text>
+          <rect class="s-box" x="16" y="126" width="150" height="50" rx="3"/>
+          <text class="s-title" x="91" y="147" text-anchor="middle">Your repo</text>
+          <text class="s-mono"  x="91" y="164" text-anchor="middle">.trellis/profile.yml</text>
 
-            <rect x="318" y="40" width="128" height="56" rx="3" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="1.4"/>
-            <text class="s-title t-amber" x="382" y="63" text-anchor="middle">Branch</text>
-            <text class="s-mono t-amber"  x="382" y="80" text-anchor="middle">guardrails on</text>
+          <rect class="s-box" x="250" y="126" width="170" height="50" rx="3"/>
+          <text class="s-title" x="335" y="147" text-anchor="middle">On a task branch?</text>
+          <text class="s-mono"  x="335" y="164" text-anchor="middle">task/&lt;id&gt;-&lt;slug&gt;</text>
 
-            <rect class="s-box" x="470" y="40" width="128" height="56" rx="3"/>
-            <text class="s-title" x="534" y="63" text-anchor="middle">Work</text>
-            <text class="s-mono"  x="534" y="80" text-anchor="middle">inside the writes</text>
+          <rect x="504" y="116" width="180" height="44" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.5"/>
+          <text class="s-title t-teal" x="594" y="143" text-anchor="middle">ARMED</text>
 
-            <rect x="622" y="40" width="104" height="56" rx="3" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.4"/>
-            <text class="s-title t-teal" x="674" y="63" text-anchor="middle">Stop gate</text>
-            <text class="s-mono t-teal"  x="674" y="80" text-anchor="middle">re-runs all</text>
-          </g>
+          <rect x="504" y="24" width="180" height="44" rx="3" fill="var(--surface-2)" stroke="var(--rule)"/>
+          <text class="s-title" x="594" y="51" text-anchor="middle">silent</text>
 
           <g class="s-line" marker-end="url(#a2)">
-            <line x1="142" y1="68" x2="160" y2="68"/>
-            <line x1="294" y1="68" x2="312" y2="68"/>
-            <line x1="446" y1="68" x2="464" y2="68"/>
-            <line x1="598" y1="68" x2="616" y2="68"/>
+            <line x1="166" y1="51"  x2="498" y2="46"/>
+            <line x1="166" y1="151" x2="244" y2="151"/>
+            <line x1="420" y1="151" x2="498" y2="140"/>
+            <line x1="335" y1="176" x2="335" y2="198"/>
           </g>
+          <line class="s-line" x1="335" y1="198" x2="590" y2="198" marker-end="url(#a2)"/>
+          <line class="s-line" x1="590" y1="198" x2="590" y2="72" marker-end="url(#a2)"/>
 
-          <path d="M674 96 L674 140" fill="none" stroke="var(--brick)" stroke-width="1.35" stroke-dasharray="5 4" marker-end="url(#a2b)"/>
-          <rect x="556" y="144" width="170" height="44" rx="3" fill="var(--brick-soft)" stroke="var(--brick)" stroke-width="1.3"/>
-          <text class="s-title t-brick" x="641" y="164" text-anchor="middle">blocked</text>
-          <text class="s-mono t-brick"  x="641" y="180" text-anchor="middle">you decide what happens</text>
-          <text class="s-lbl t-brick" x="546" y="124" text-anchor="end">any criterion fails</text>
-
-          <text class="s-lbl" x="14" y="176">Validate before you branch:</text>
-          <text class="s-mono" x="14" y="194">node $TRELLIS/scripts/validate-contract.mjs docs/contracts --all</text>
+          <text class="s-lbl t-teal" x="440" y="140">yes</text>
+          <text class="s-lbl" x="348" y="192">no</text>
+          <text class="s-lbl" x="300" y="40">no profile → never enforces</text>
         </svg>
       </div>
       <figcaption>
-        The Stop gate never forces a retry. It re-runs every criterion, records the truth in the
-        contract, and lets you decide — retry, abandon, or pause.
+        Silence is the normal state. If you expect it armed and it is silent, check the branch name
+        first — that is how every hook works out which contract it is enforcing.
       </figcaption>
     </figure>
-
-    <h3>The four commands</h3>
-    <pre>cp $TRELLIS/templates/SPEC.md      docs/specs/my-feature.md
-cp $TRELLIS/templates/CONTRACT.md  docs/contracts/MY-T-01.md
-
-node $TRELLIS/scripts/validate-contract.mjs docs/contracts --all
-
-git checkout -b task/MY-T-01-short-slug</pre>
-    <p>
-      Now work. The hardest and most valuable part of the contract is <code>done_when</code>: it
-      forces you to decide how "done" gets checked <em>before</em> any code exists. Prefer runnable
-      commands — the gate re-executes them verbatim.
-    </p>
   </section>
 
   <!-- 5 · WHAT IT STOPS -->
   <section>
-    <h2><span class="n">5</span> What it will stop you doing</h2>
+    <h2><span class="n">5</span> What it will stop</h2>
     <p class="sub">Only while a contract is in flight. Each refusal explains itself and cites its rule.</p>
     <div class="tbl">
       <table>
         <thead><tr><th>Attempt</th><th>Result</th></tr></thead>
         <tbody>
           <tr><td>Edit a file outside <code>writes</code></td><td>Denied — scope is never widened mid-flight</td></tr>
-          <tr><td>Edit the contract you are executing</td><td>Denied — a wrong contract is fixed by a human, in a separate commit</td></tr>
-          <tr><td><code>git push</code>, <code>gh pr create</code>, <code>git rebase</code>, branch switch</td><td>Denied — you commit in your worktree and stop there</td></tr>
+          <tr><td>Edit the contract being executed</td><td>Denied — a wrong contract is fixed by a human, in a separate commit</td></tr>
+          <tr><td><code>git push</code>, <code>gh pr create</code>, <code>git rebase</code>, branch switch</td><td>Denied — commit in the worktree and stop there</td></tr>
           <tr><td>Push to <code>main</code> or force-push</td><td>Denied always, contract or not</td></tr>
-          <tr><td>Finish with a red build</td><td>Allowed to stop — but the contract is marked <code>blocked</code> and you are told</td></tr>
+          <tr><td>Finish with a red build</td><td>The session may close — but the contract is marked <code>blocked</code> and you are told</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="note ok">
+    <div class="note">
       <span class="tag">Not a sandbox</span>
       <p>
-        These are defence in depth against drift, not a security boundary. A determined shell can
-        evade a pattern, and that is by design — the goal is that nobody wanders out of scope by
-        accident.
+        Defence in depth against drift, not a security boundary. A determined shell can evade a
+        pattern, by design — the goal is that nobody wanders out of scope by accident.
       </p>
     </div>
   </section>
 
-  <!-- 6 · UPDATES -->
+  <!-- 6 · REFERENCE -->
   <section>
-    <h2><span class="n">6</span> Staying current</h2>
-    <pre>claude plugin update trellis@gmstek</pre>
-    <div class="note">
-      <span class="tag">If you maintain the plugin</span>
+    <h2><span class="n">6</span> Reference</h2>
+
+    <details>
+      <summary>Doing it by hand instead</summary>
+      <p>Everything the skills do is plain files and commands. Nothing is hidden.</p>
+      <pre>TRELLIS=$(echo ~/.claude/plugins/cache/gmstek/trellis/*/)
+
+mkdir -p .trellis docs/specs docs/contracts docs/adr
+cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml
+<span class="c"># fill in build / test_fast / lint · `~` means "none here", stated not blank</span>
+
+cp $TRELLIS/templates/CONTRACT.md docs/contracts/MY-T-01.md
+node $TRELLIS/scripts/validate-contract.mjs docs/contracts --all
+git checkout -b task/MY-T-01-short-slug</pre>
+    </details>
+
+    <details>
+      <summary>Keeping it current, and releasing changes</summary>
+      <pre>claude plugin update trellis@gmstek</pre>
       <p>
-        The install cache is keyed by version. New commits without a version bump in
-        <code>plugin.json</code> reach nobody, and <code>update</code> will happily report
+        If you maintain the plugin: the install cache is keyed by version. New commits without a
+        version bump in <code>plugin.json</code> reach nobody, and <code>update</code> will report
         <em>already at the latest version</em>. Bump it, then <code>claude plugin tag --push</code>.
       </p>
-    </div>
+    </details>
+
+    <details>
+      <summary>What this costs in context</summary>
+      <p>
+        The four hooks are <strong>harness-only — no model context cost</strong>. The two skills cost
+        about <strong>240 tokens always-on</strong> (their descriptions, so the agent knows they
+        exist) and roughly <strong>1.9k when one actually fires</strong>. Check yours with
+        <code>claude plugin details trellis@gmstek</code>.
+      </p>
+      <p>
+        That asymmetry is the whole argument for pushing rules down into hooks rather than writing
+        them into documents: a hook is unforgettable <em>and</em> free.
+      </p>
+    </details>
   </section>
 
   <footer>
-    Trellis v0.2.0 · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
-    The long version — what a contract is, why gates exist, the enforcement ladder — is in
+    Trellis v0.3.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>
 </main>

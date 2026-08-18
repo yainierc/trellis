@@ -363,7 +363,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.2.1 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.3.0 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -373,7 +373,7 @@
     <div class="meta-row">
       <span class="chip"><strong>Method</strong> · contracts and gates</span>
       <span class="chip"><strong>Vehicle</strong> · an installable plugin</span>
-      <span class="chip"><strong>Autonomy</strong> · stops at the pull request</span>
+      <span class="chip"><strong>Autonomy</strong> · stops before the pull request</span>
     </div>
   </div>
 </div>
@@ -660,7 +660,7 @@
 
     <figure class="wide">
       <div class="fig-frame">
-        <svg viewBox="0 0 1200 400" role="img" aria-label="Two-lane lifecycle: the person states the idea and approves the spec; the AI writes the spec, decomposes it into contracts, executes in an isolated worktree, verifies, reviews adversarially and opens the pull request; the person decides merge and deploy. If a criterion fails the contract is blocked and the person decides.">
+        <svg viewBox="0 0 1200 400" role="img" aria-label="Two-lane lifecycle: the person states the idea and approves the spec; the AI writes the spec, decomposes it into contracts, executes in an isolated worktree, verifies and reviews adversarially, then hands over committed work; the person pushes, opens the pull request, merges and deploys. If a criterion fails the contract is blocked and the person decides.">
           <defs>
             <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
@@ -683,8 +683,8 @@
           <text class="s-mono t-amber"  x="352" y="81" text-anchor="middle">fixing it here costs minutes</text>
 
           <rect x="1002" y="46" width="170" height="44" rx="3" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.8"/>
-          <text class="s-title t-amber" x="1087" y="66" text-anchor="middle">GATE · merge</text>
-          <text class="s-mono t-amber"  x="1087" y="81" text-anchor="middle">and deploy</text>
+          <text class="s-title t-amber" x="1087" y="66" text-anchor="middle">GATE · push and PR</text>
+          <text class="s-mono t-amber"  x="1087" y="81" text-anchor="middle">then merge and deploy</text>
 
           <g>
             <rect class="s-box" x="200"  y="186" width="140" height="68" rx="3"/>
@@ -714,8 +714,8 @@
 
             <rect class="s-box" x="1020" y="186" width="140" height="68" rx="3"/>
             <text class="s-num"   x="1032" y="204">6</text>
-            <text class="s-title" x="1090" y="222" text-anchor="middle">Pull request</text>
-            <text class="s-mono"  x="1090" y="240" text-anchor="middle">nothing merges itself</text>
+            <text class="s-title" x="1090" y="222" text-anchor="middle">Hand over</text>
+            <text class="s-mono"  x="1090" y="240" text-anchor="middle">committed, not pushed</text>
           </g>
 
           <g class="s-line" marker-end="url(#ar4)">
@@ -873,8 +873,10 @@
       <figcaption>
         <b>Declaring <code>writes</code> too wide serialises the work.</b> A contract claiming
         <code>docs/</code> conflicts with everything under <code>docs/</code>, and the whole backlog
-        queues up behind phantom conflicts. That is why the validator warns when a
-        <code>writes</code> entry names a bare directory.
+        queues up behind phantom conflicts. The validator therefore warns on <em>every</em> directory
+        entry — including a narrow one like the example above — because it cannot judge which are too
+        wide. The warning asks for a decision, not a change: narrow it to files, or state in the
+        contract that the directory is the unit of change.
       </figcaption>
     </figure>
   </section>
@@ -1035,7 +1037,7 @@
         <pre>git clone https://github.com/yainierc/trellis.git ~/src/trellis
 ln -s ~/src/trellis ~/.claude/skills/trellis</pre>
         <p>To confirm it is seen:</p>
-        <pre>claude plugin details trellis@skills-dir</pre>
+        <pre>claude plugin details trellis</pre>
         <p>
           Edit a file in the repo and the change is live in the next session. This is the right mode
           while the plugin changes daily. To remove it:
@@ -1084,12 +1086,12 @@ claude plugin install trellis@gmstek</pre>
         The install cache is keyed by version, and this is the one operational trap worth knowing
         before the team depends on it: pushing new commits without touching
         <code>version</code> in <code>plugin.json</code> leaves everyone on the old code.
-        <code>claude plugin update</code> will cheerfully answer
-        <em>already at the latest version</em> and pull nothing.
+        <code>claude plugin update</code> resolves against the declared version, so it reports the
+        plugin as up to date and pulls nothing — the new commits are simply never fetched.
       </p>
       <p>
         So every release bumps the version, and <code>claude plugin tag</code> creates the
-        <code>trellis--v0.1.0</code> tag while checking that <code>plugin.json</code> and the
+        <code>trellis--vX.Y.Z</code> tag while checking that <code>plugin.json</code> and the
         marketplace entry agree about it:
       </p>
       <pre>claude plugin tag --dry-run          <span class="c"># check before committing to it</span>
@@ -1222,7 +1224,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.1.0 · a Claude Code plugin · by Yainier Caraballo.<br>
+      Trellis v0.3.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>

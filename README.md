@@ -58,7 +58,7 @@ When a skill and a rule appear to disagree, **the rule wins and the skill is the
 
 | Document | For |
 |---|---|
-| `docs/getting-started.html` | Installing it and doing a first piece of work — four commands |
+| `docs/getting-started.html` | Installing it, then asking Claude Code to adopt it and start work |
 | `docs/overview.html` | What a contract is, why the gates exist, the enforcement ladder |
 
 Standalone copies for sharing outside the repo: `node scripts/build-docs.mjs` → `docs/dist/`.
@@ -75,6 +75,7 @@ real repository rather than to a preference.
 | `scripts/validate-contract.mjs` — structural gate | ✅ |
 | `templates/project-profile.yml` — the tuning surface | ✅ |
 | `templates/SPEC.md` — the wave, and where cross-cutting concerns get decided | ✅ |
+| `skills/init` · `skills/contract` — adoption and starting work, as sentences | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/` — analyst, implementer, reviewer, specialists | next |
