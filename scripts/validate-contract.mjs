@@ -17,6 +17,9 @@ import { norm, overlap } from './lib/paths.mjs'
 
 const STATUS = ['pending', 'active', 'blocked', 'gated', 'completed', 'withdrawn']
 const EXECUTOR = ['subagent', 'session']
+// Optional: absent means `supervised`. Making it required would invalidate every contract written
+// before graduated autonomy existed, and `supervised` is the safe reading of silence.
+const AUTONOMY = ['supervised', 'autonomous']
 const SCALARS = ['id', 'title', 'spec', 'status', 'executor', 'agent', 'model', 'estimate']
 const LISTS = ['depends_on', 'parallel_safe_with', 'reads', 'writes']
 const SECTIONS = ['## Objective', '## Constraints', '## Steps', '## Done when', '## Out of scope']
@@ -40,6 +43,7 @@ function validate (file, text) {
 
   if (data.status && !STATUS.includes(data.status)) errors.push(`status must be one of ${STATUS.join(' | ')}, got "${data.status}"`)
   if (data.executor && !EXECUTOR.includes(data.executor)) errors.push(`executor must be one of ${EXECUTOR.join(' | ')}, got "${data.executor}"`)
+  if (data.autonomy !== undefined && !AUTONOMY.includes(data.autonomy)) errors.push(`autonomy must be one of ${AUTONOMY.join(' | ')}, got "${data.autonomy}"`)
 
   const writes = Array.isArray(data.writes) ? data.writes : []
   if (!writes.length) errors.push('writes is empty — a contract with nothing to write cannot be scheduled')

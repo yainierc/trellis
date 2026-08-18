@@ -47,7 +47,7 @@ gates:
     - done_when
 `.trimStart()
 
-const contract = (id, criteria) => `---
+const contract = (id, criteria, autonomy) => `---
 id: ${id}
 title: Fixture
 spec: none
@@ -55,7 +55,7 @@ status: active
 executor: subagent
 agent: implementer
 model: sonnet
-estimate: 60min
+estimate: 60min${autonomy ? `\nautonomy: ${autonomy}` : ''}
 depends_on: []
 parallel_safe_with: []
 reads: []
@@ -83,7 +83,9 @@ ${criteria}
 - none
 `
 
-function makeRepo ({ branch = 'task/FIX-T-01-thing', criteria = '- [ ] `true`' } = {}) {
+function makeRepo ({ branch = 'task/FIX-T-01-thing', criteria = '- [ ] `true`',
+                     profileAutonomy = null, deployOnMerge = null, contractAutonomy = null,
+                     remote = null } = {}) {
   const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trellis-fixture-')))
   const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'ignore' })
   git('init', '-q', '-b', 'main')
@@ -91,14 +93,18 @@ function makeRepo ({ branch = 'task/FIX-T-01-thing', criteria = '- [ ] `true`' }
   git('config', 'user.name', 'fixture')
 
   mkdirSync(join(dir, '.trellis'), { recursive: true })
-  writeFileSync(join(dir, '.trellis', 'profile.yml'), PROFILE)
+  let profile = PROFILE
+  if (profileAutonomy) profile = profile.replace('project:\n  code: fixture', `project:\n  code: fixture\n  autonomy: ${profileAutonomy}`)
+  if (deployOnMerge !== null) profile = profile.replace('  base_branch: main', `  base_branch: main\n  deploy_on_merge: ${deployOnMerge}`)
+  writeFileSync(join(dir, '.trellis', 'profile.yml'), profile)
   mkdirSync(join(dir, 'docs', 'contracts'), { recursive: true })
-  writeFileSync(join(dir, 'docs', 'contracts', 'FIX-T-01.md'), contract('FIX-T-01', criteria))
+  writeFileSync(join(dir, 'docs', 'contracts', 'FIX-T-01.md'), contract('FIX-T-01', criteria, contractAutonomy))
   mkdirSync(join(dir, 'src', 'allowed'), { recursive: true })
   writeFileSync(join(dir, 'README.md'), 'fixture\n')
 
   git('add', '-A')
   git('commit', '-qm', 'fixture')
+  if (remote) git('remote', 'add', 'origin', remote)
   if (branch !== 'main') git('checkout', '-qb', branch)
   return dir
 }
@@ -202,6 +208,74 @@ const repo = opts => { const d = makeRepo(opts); cleanup.push(d); return d }
 
   r = fire('git-boundary.mjs', bash(onMain, 'git log --oneline -5'))
   check('reading history is left alone outside a contract', decision(r) === null, `got ${decision(r)}`)
+}
+
+// ── graduated autonomy ───────────────────────────────────────────────────────
+//
+// Every precondition is asserted to deny on its own. There is no test that merges anything: the
+// allowed path ends at `gh pr merge --auto`, which is a request to the platform, and the platform is
+// the one thing a fixture cannot stand in for.
+{
+  const GH = 'https://github.com/example/fixture.git'
+  const full = {
+    profileAutonomy: 'auto-merge', deployOnMerge: 'false',
+    contractAutonomy: 'autonomous', remote: GH
+  }
+
+  // 1 · nothing granted at all — the default path is unchanged
+  let dir = repo({ remote: GH })
+  let r = fire('git-boundary.mjs', bash(dir, 'git push -u origin HEAD'))
+  check('autonomy: push denied when nothing was granted', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: the refusal names the profile ceiling', /profile declares autonomy/.test(reason(r)), reason(r))
+
+  // 2 · repo permits it, contract never asked
+  dir = repo({ ...full, contractAutonomy: null })
+  r = fire('git-boundary.mjs', bash(dir, 'gh pr create --fill'))
+  check('autonomy: denied when the contract was not granted it', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: the refusal says the contract was not granted', /was not granted autonomy/.test(reason(r)), reason(r))
+
+  // 3 · contract asks, repo ceiling forbids — min(ceiling, grant) wins
+  dir = repo({ ...full, profileAutonomy: 'pr' })
+  r = fire('git-boundary.mjs', bash(dir, 'gh pr create --fill'))
+  check('autonomy: the repo ceiling beats the contract grant', decision(r) === 'deny', `got ${decision(r)}`)
+
+  // 4 · deploy_on_merge unanswered is a refusal, not an assumption
+  dir = repo({ ...full, deployOnMerge: null })
+  r = fire('git-boundary.mjs', bash(dir, 'git push -u origin HEAD'))
+  check('autonomy: unanswered deploy_on_merge refuses', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: it says the question is unanswered', /deploy_on_merge is unanswered/.test(reason(r)), reason(r))
+
+  // 5 · a merge that deploys disqualifies the repo
+  dir = repo({ ...full, deployOnMerge: 'true' })
+  r = fire('git-boundary.mjs', bash(dir, 'git push -u origin HEAD'))
+  check('autonomy: deploy_on_merge true disqualifies', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: it says auto-merge would be auto-deploy', /auto-deploy/.test(reason(r)), reason(r))
+
+  // 6 · everything granted, but the branch is not protected → exceptions fail closed
+  dir = repo(full)
+  r = fire('git-boundary.mjs', bash(dir, 'git push -u origin HEAD'))
+  check('autonomy: fails closed when protection cannot be verified', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: the refusal is about the platform, not the grant',
+    /protection|required status checks|could not be verified|gh CLI/.test(reason(r)), reason(r))
+
+  // 7 · a bare merge stays denied even with everything granted
+  r = fire('git-boundary.mjs', bash(dir, 'gh pr merge --squash'))
+  check('autonomy: a bare gh pr merge is denied at every level', decision(r) === 'deny', `got ${decision(r)}`)
+  check('autonomy: it explains that --auto delegates and a bare merge does not',
+    /--auto/.test(reason(r)), reason(r))
+
+  // 8 · pushing the base branch is never relaxed
+  const onMain = repo({ ...full, branch: 'main' })
+  r = fire('git-boundary.mjs', bash(onMain, 'git push origin main'))
+  check('autonomy: pushing the base branch is never relaxed', decision(r) === 'deny', `got ${decision(r)}`)
+
+  // 9 · force-push is never relaxed
+  r = fire('git-boundary.mjs', bash(dir, 'git push --force origin HEAD'))
+  check('autonomy: force-push is never relaxed', decision(r) === 'deny', `got ${decision(r)}`)
+
+  // 10 · an ordinary command still costs no API call and is still allowed
+  r = fire('git-boundary.mjs', bash(dir, 'git status --short'))
+  check('autonomy: ordinary git is untouched by any of this', decision(r) === null, `got ${decision(r)}`)
 }
 
 // ── stop gate ────────────────────────────────────────────────────────────────

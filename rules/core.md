@@ -59,6 +59,14 @@ These are never resolved by an agent, in any circumstance, however green the bui
 
 An executor that reaches a gate **stops and asks**. Waiting costs nothing; guessing costs the task.
 
+**One narrow delegation, added by `docs/adr/0003-graduated-autonomy.md`.** A contract a human has
+explicitly granted `autonomy: autonomous`, in a repository whose profile permits it, may push its task
+branch, open a pull request and request auto-merge. It is still never permitted to merge: auto-merge
+asks the platform to merge if its required status checks pass, so the decision moves from a human
+remembering to look to a check that cannot be skipped. Everything else in this list is unaffected, a
+bare merge stays denied, and if any precondition cannot be verified the answer is no — guards fail
+open, exceptions fail closed.
+
 ## 5. The orchestrator does not trust the report
 
 Every `done_when` criterion is re-executed by the orchestrator, not read off the executor's summary.
@@ -114,6 +122,8 @@ reason to pause feature work and repair the loop.
   for every session in the repo.
 - A human is re-reviewing the same class of defect every week → that defect class needs a gate, not
   more review.
+- An auto-merged change had to be reverted → the eligibility criteria for `autonomy: autonomous` are
+  wrong. Narrow them; do not widen the excuse (`docs/adr/0003-graduated-autonomy.md`).
 
 ## 11. Incidents are institutional memory
 

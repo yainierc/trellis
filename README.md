@@ -76,6 +76,7 @@ real repository rather than to a preference.
 | `templates/project-profile.yml` — the tuning surface | ✅ |
 | `templates/SPEC.md` — the wave, and where cross-cutting concerns get decided | ✅ |
 | `skills/init` · `skills/contract` — adoption and starting work, as sentences | ✅ |
+| `scripts/lib/autonomy.mjs` — graduated autonomy, granted by a human and proved by the platform | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/` — analyst, implementer, reviewer, specialists | next |
@@ -88,7 +89,7 @@ real repository rather than to a preference.
 |---|---|
 | Spec-first | Mandatory. Trivial mechanical work (typo, rename, broken build) may proceed without a spec and must be reported as such |
 | Orchestrators | Two: an analyst that produces a spec and stops dead at a human gate, and an implementer that executes an approved one |
-| Autonomy | The AI stops at the pull request. Merge and deploy are human |
+| Autonomy | Supervised by default: the AI commits in its worktree and stops. A contract a human explicitly grants `autonomy: autonomous` may push, open a PR and request auto-merge — it never merges; required status checks decide (ADR 0003) |
 | Stop gate on failure | Records it. The gate marks the contract `blocked` and lets the session close — blocking the stop is how you force a retry, which §8 forbids |
 | Executor | A field on the contract: a background subagent by default; a dedicated session above ~3h or across layers |
 | Done | Build + lint + fast tests + every `done_when` re-executed by the orchestrator. An adversarial review with zero must-fix findings is required before the PR, and never runs on Stop |

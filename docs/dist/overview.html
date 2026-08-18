@@ -363,7 +363,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.3.0 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.4.0 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -949,6 +949,20 @@
         <span class="tag">The principle</span>
         <p>Waiting costs nothing; guessing costs the task.</p>
       </div>
+      <h3>One narrow delegation</h3>
+      <p>
+        A contract a human has explicitly granted autonomy — in a repository whose profile permits it,
+        on a base branch with required status checks — may push its task branch, open a pull request
+        and <em>request</em> auto-merge. It still never merges: <code>gh pr merge --auto</code> asks the
+        platform to merge if its checks pass, so the decision moves from a person remembering to look
+        to a check that cannot be skipped. A bare merge stays denied at every level.
+      </p>
+      <p>
+        The grant is answered by a human before the branch exists and recorded in the contract, which
+        is immutable during execution — so an executor cannot grant itself autonomy. Where a merge
+        deploys to production, or the change touches a schema, a shared interface, a security control
+        or a feature flag, it stays human whatever the profile says.
+      </p>
     </div>
   </section>
 
@@ -1224,7 +1238,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.3.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
+      Trellis v0.4.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>

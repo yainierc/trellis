@@ -8,6 +8,12 @@ ticket: ~                        # tracker id, filled by /trellis:task-start
 
 # ─── execution ───────────────────────────────────────────────────────────────
 executor: subagent               # subagent | session   (>3h or multi-layer ⇒ session)
+# How far this contract may carry itself. A HUMAN answers this, once, after the contract validates and
+# before the branch exists — the last moment it is cheap, and by then `writes` and `done_when` are
+# visible. It is in the immutable set: an executor can never grant itself autonomy.
+#   supervised   commit in the worktree and stop. The default.
+#   autonomous   may push the task branch, open a PR and request auto-merge. Never merges by hand.
+autonomy: supervised
 agent: implementer               # the role that owns these write paths
 model: sonnet                    # sonnet | opus | haiku
 estimate: 90min
@@ -45,7 +51,7 @@ executor's prompt, so they must stand alone.
 
 - <rule the change touches, citing the rule file or decision record that governs it>
 - Do not touch files outside the `writes` list.
-- Do not edit this contract's `writes`, `constraints` or `done_when`. A wrong contract is amended by
+- Do not edit this contract's `writes`, `constraints`, `done_when` or `autonomy`. A wrong contract is amended by
   the human in a separate commit before code is written.
 - Do not push, open a pull request, merge, or switch branches.
 

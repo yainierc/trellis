@@ -8,8 +8,12 @@ project:
   code: ~                      # short project code used in ids and resource names
   artifact_language: en        # language of every generated artifact, whatever language the
                                # conversation happens in
-  autonomy: pr                 # pr = the AI stops at the pull request; nothing merges or deploys
-                               # without a human
+  # The repository's CEILING, not a per-task setting. A contract may ask for less, never for more.
+  #   pr          the AI commits in its worktree and stops. Nothing pushes, merges or deploys.
+  #   auto-merge  a contract a human explicitly granted autonomy to may push its task branch, open a
+  #               pull request and request auto-merge. It still never merges: the decision belongs to
+  #               required status checks. See docs/adr/0003-graduated-autonomy.md.
+  autonomy: pr
 
 paths:
   specs: openspec/changes      # where specs / change proposals live
@@ -25,6 +29,11 @@ git:
   # PR target. Set to an integration branch when a whole spec must land as one PR — and read the
   # cost first: session PRs into an integration branch get NO CI signal until the final merge.
   pr_target: main
+  # Does a merge to base_branch deploy to production? REQUIRED to answer when autonomy is
+  # `auto-merge`, and never inferred: `true` disqualifies this repository from autonomy entirely,
+  # because auto-merge would then be auto-deploy. An unanswered `~` is also a refusal — the gate is
+  # skipped while saying so, exactly like every other `~` in this file.
+  deploy_on_merge: ~
 
 commands:
   # Every command runs from the repository root. `~` means "not applicable in this repo" and the

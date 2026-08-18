@@ -175,7 +175,7 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.3.0</div>
+    <div class="eyebrow">Trellis · v0.4.0</div>
     <h1>Quickstart</h1>
     <p class="deck">
       Two commands to install, then one sentence per thing you want. Claude Code does the setup —
@@ -246,7 +246,9 @@ claude plugin install trellis@gmstek</pre>
     <p>
       That runs <code>/trellis:contract</code>: it reads enough of the repo to write a contract that
       stands alone, declares which paths it may touch and how "done" gets checked as runnable
-      commands, validates it, and branches — which is the step that arms the guardrails.
+      commands, validates it, then <strong>asks you one question before creating the branch</strong> —
+      wait for you at hand-over, or carry this through to merge. Then it branches, which is the step
+      that arms the guardrails.
     </p>
 
     <figure>
@@ -374,7 +376,8 @@ claude plugin install trellis@gmstek</pre>
         <tbody>
           <tr><td>Edit a file outside <code>writes</code></td><td>Denied — scope is never widened mid-flight</td></tr>
           <tr><td>Edit the contract being executed</td><td>Denied — a wrong contract is fixed by a human, in a separate commit</td></tr>
-          <tr><td><code>git push</code>, <code>gh pr create</code>, <code>git rebase</code>, branch switch</td><td>Denied — commit in the worktree and stop there</td></tr>
+          <tr><td><code>git rebase</code>, branch switch, merging by hand</td><td>Denied always under a contract</td></tr>
+          <tr><td><code>git push</code>, <code>gh pr create</code></td><td>Denied on a supervised contract. Allowed on one you granted autonomy, if the base branch has required checks</td></tr>
           <tr><td>Push to <code>main</code> or force-push</td><td>Denied always, contract or not</td></tr>
           <tr><td>Finish with a red build</td><td>The session may close — but the contract is marked <code>blocked</code> and you are told</td></tr>
         </tbody>
@@ -433,7 +436,7 @@ git checkout -b task/MY-T-01-short-slug</pre>
   </section>
 
   <footer>
-    Trellis v0.3.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    Trellis v0.4.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
     The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>
