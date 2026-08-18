@@ -54,6 +54,13 @@ trellis/
 
 When a skill and a rule appear to disagree, **the rule wins and the skill is the bug.**
 
+## Documentation
+
+| Document | For |
+|---|---|
+| `docs/getting-started.html` | Installing it and doing a first piece of work — four commands |
+| `docs/overview.html` | What a contract is, why the gates exist, the enforcement ladder |
+
 ## Status
 
 Early. Built increment by increment, and every rule in `rules/core.md` traces to a real failure in a
