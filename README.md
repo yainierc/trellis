@@ -56,6 +56,10 @@ When a skill and a rule appear to disagree, **the rule wins and the skill is the
 
 ## Documentation
 
+`REFERENCE.md` is the map: what each component does, where artefacts are stored, which profile fields
+the code actually reads, and which are declared and not wired up yet. Read it before relying on one.
+
+
 | Document | For |
 |---|---|
 | `docs/getting-started.html` | Installing it, then asking Claude Code to adopt it and start work |

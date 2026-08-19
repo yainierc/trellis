@@ -30,6 +30,12 @@ ladder is always an improvement; moving it up is a regression that must be justi
 Tiers 1–5 are mechanical: the model cannot forget them. Tiers 6–7 depend on the model
 remembering, so **a rule that lives there and could live lower is technical debt**.
 
+## Where things live
+
+Rules say what must be true. **`REFERENCE.md`** says where artefacts are stored, what each component
+does, and what is declared but not implemented — the map rather than the law. Read it when you need to
+know where something goes; read the rules when you need to know whether it is allowed.
+
 ## Rule files
 
 | File | Covers |

@@ -23,6 +23,9 @@ paths:
   # contract may depend on one archived months ago. Run `node scripts/archive.mjs --dry-run` first.
   archive: docs/contracts/archive
   decisions: docs/adr          # decision records
+  # Location convention only — nothing in the plugin reads this yet. Operational procedures live
+  # here: how a feature flag gets turned off in an incident and how long that actually takes,
+  # how a credential is rotated, what to look at when a queue backs up.
   runbooks: docs/runbooks
   scratch: tmp                 # gitignored; never referenced from a committed file
 
