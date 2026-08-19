@@ -1,7 +1,7 @@
 ---
 id: questions-reach-the-decider
 title: Questions reach the decider where they already are, and the answer comes back on the record
-status: draft
+status: approved
 owner: Yainier Caraballo
 date: 2026-08-19
 supersedes: none
@@ -138,6 +138,12 @@ could send one.
 - **Detail:** owner-only is one comparison against the frontmatter. The reason not to default to it is
   that a role is a valid owner, and nothing can check whether the person running the command holds it.
 
+**Answered 2026-08-19 — Yainier Caraballo:** anyone may publish, and the page names the spec's `owner`
+as the person accountable for the questions. Answered in a comment on the published page and landed by
+hand. **No code change:** `ASK-T-02` already ships exactly this — the page header carries
+`Owner <name>` — so what changes is that it stops being a default by silence and becomes a decision
+with a name and a date on it.
+
 **Q-02 · When a decision-maker answers in a comment, may that answer land in the spec without the owner confirming it?**
 
 The format already exists and is already in use: `**Answered 2026-08-19 — Yainier Caraballo:** …`.
@@ -148,3 +154,10 @@ The question is whether Claude writes it or proposes it.
 - **Detail:** this is the only thing blocking `ASK-T-03`. `ASK-T-02` does not depend on it. Answering
   it "Claude writes it" would let a comment on a web page change a requirement while a contract runs
   against it, which is what §2 exists to prevent — so the default is the safe one on purpose.
+
+**Answered 2026-08-19 — Yainier Caraballo:** it is proposed, never written. Claude drafts the amendment
+and stops; a human lands it. Drafting and amending are separate powers, and collapsing them would let
+the executor rewrite the rules it operates under. This fixes the shape of `ASK-T-03` entirely — read the
+comments, draft, stop — and it is now unblocked.
+
+*This spec is the first thing that answer was applied to, and it was applied by hand.*

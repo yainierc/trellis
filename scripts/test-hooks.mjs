@@ -877,6 +877,151 @@ The brief asserts both.
     !/https?:\/\/fonts\./.test(html) && !/<script/.test(html), '')
 }
 
+// ── landing an answer on a spec ──────────────────────────────────────────────
+// The invariant under test is not "it inserts the right text" but "it cannot do anything else". A tool
+// pointed at a requirement is only safe if a bug in it produces no write rather than a mangled spec —
+// and this check caught exactly that on its first real use, when the insertion normalised a blank line.
+{
+  const AQ = join(ROOT, 'scripts', 'answer-question.mjs')
+  const dir = repo()
+  const run = (...a) => spawnSync('node', [AQ, ...a], { cwd: dir, encoding: 'utf8' })
+
+  const SPEC = `---
+id: land
+title: A spec with two unanswered questions
+status: draft
+owner: A Role
+date: 2026-08-19
+supersedes: none
+contracts: []
+feature_flag: none
+flag_reason: >-
+  fixture
+e2e: none
+e2e_reason: none needed
+ceilings: none
+---
+# land
+
+## Why
+x
+
+## Outcome
+x
+
+## Open questions
+
+### APN Leadership
+
+**Q-01 · Does the marketplace take the booking?**
+
+The brief asserts both.
+
+- **If nobody answers:** the manual shape ships.
+- **Detail:** W1 vs W3.
+
+**Q-02 · Does the read model own its store?**
+
+- **If nobody answers:** it shares.
+`
+  const spec = join(dir, 'land.md')
+  const reset = () => { writeFileSync(spec, SPEC); return SPEC }
+
+  // Draft mode writes nothing. This is the whole of Q-02's answer, mechanically.
+  reset()
+  let r = run(spec, '--id', 'Q-01', '--by', 'A Role', '--answer', 'It takes the booking.')
+  check('answer-question: without --apply it prints and writes nothing',
+    r.status === 0 && /Answered/.test(r.stdout) && readFileSync(spec, 'utf8') === SPEC, r.stdout)
+
+  r = run(spec, '--id', 'Q-01', '--by', 'A Role', '--answer', 'It takes the booking.', '--apply')
+  const landed = readFileSync(spec, 'utf8')
+  check('answer-question: --apply inserts the block', r.status === 0 && /\*\*Answered .* — A Role:\*\* It takes the booking\./.test(landed), r.stdout)
+
+  // The insert-only proof, asserted from the outside: remove the block and the file must be identical.
+  const inserted = landed.match(/\n\n\*\*Answered [^\n]*/)[0]
+  check('answer-question: the inserted block is the only change, byte for byte',
+    landed.replace(inserted, '') === SPEC, 'the file changed in some other way as well')
+
+  check('answer-question: the answer lands inside its own question, not at the end',
+    landed.indexOf('Answered') < landed.indexOf('Q-02'), 'the block landed outside the question it answers')
+  check('answer-question: it says the thread must be resolved only afterwards',
+    /resolve the comment thread/.test(r.stdout) && /not before/.test(r.stdout), r.stdout)
+
+  // A second answer is a supersede, and a person decides which one holds.
+  r = run(spec, '--id', 'Q-01', '--by', 'Someone Else', '--answer', 'Actually a lead.', '--apply')
+  check('answer-question: an already-answered question is refused',
+    r.status === 1 && /already carries an answer/.test(r.stderr) && /supersede/.test(r.stderr), r.stderr)
+  check('answer-question: the refusal left the file alone', readFileSync(spec, 'utf8') === landed, '')
+
+  // The other question is untouched by the first answer.
+  r = run(spec, '--id', 'Q-02', '--by', 'APN Leadership', '--answer', 'It owns its store.', '--apply')
+  check('answer-question: a second question still lands, at the end of the file', r.status === 0, r.stdout)
+
+  reset()
+  r = run(spec, '--id', 'Q-01', '--answer', 'unsigned')
+  check('answer-question: an answer with no --by is refused',
+    r.status === 2 && /--by is required/.test(r.stderr), r.stderr)
+  r = run(spec, '--id', 'Q-01', '--by', 'A Role', '--answer', '   ')
+  check('answer-question: an empty answer is refused', r.status === 2, r.stderr)
+  r = run(spec, '--id', 'Q-99', '--by', 'A Role', '--answer', 'y')
+  check('answer-question: an unknown id is refused and the real ids are named',
+    r.status === 1 && /Q-01/.test(r.stderr) && /Q-02/.test(r.stderr), r.stderr)
+  check('answer-question: none of the refusals wrote anything', readFileSync(spec, 'utf8') === SPEC, '')
+}
+
+// ── the two rendering defects the first real page exposed ────────────────────
+// Found on the page a person actually opened, not by a fixture — which is the second time real material
+// has caught something four months of "finished" parsing did not.
+{
+  const PQ = join(ROOT, 'scripts', 'publish-questions.mjs')
+  const dir = repo()
+  const out = join(dir, 'pages')
+
+  writeFileSync(join(dir, 'render.md'), `---
+id: render
+title: A spec whose prose wraps and counts
+status: approved
+owner: A Role
+date: 2026-08-19
+supersedes: none
+contracts: []
+feature_flag: none
+flag_reason: >-
+  fixture
+e2e: none
+e2e_reason: none needed
+ceilings: none
+---
+# render
+
+## Why
+It was refused because *"two copies of one decision drift, and
+nothing tells you which one the reader used."*
+
+Two things changed:
+
+1. The first thing that changed.
+2. The second thing that changed.
+
+## Outcome
+x
+
+## Open questions
+
+### A Role
+
+**Q-01 · Does it render?**
+
+- **If nobody answers:** it does not.
+`)
+  const r = spawnSync('node', [PQ, 'render.md', '--for', 'A Role', '--out', out], { cwd: dir, encoding: 'utf8' })
+  const html = r.status === 0 ? readFileSync(join(out, 'render--a-role.html'), 'utf8') : ''
+  check('page: emphasis spanning a line break is rendered',
+    /<em>"two copies of one decision drift,/.test(html) && !/\*"two copies/.test(html), r.stdout + r.stderr)
+  check('page: a numbered list is a list, not a paragraph with digits in it',
+    /<ol>/.test(html) && /<li>The first thing that changed\.<\/li>/.test(html), '')
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

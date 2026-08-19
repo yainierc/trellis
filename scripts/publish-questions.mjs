@@ -69,7 +69,10 @@ function inline (md) {
   let s = esc(md).replace(/`([^`]+)`/g, (_, c) => `⟦${spans.push(`<code>${c}</code>`) - 1}⟧`)
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, h) => `<a href="${h}">${t}</a>`)
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-  s = s.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+  // `[^*]` rather than `[^*\n]`: prose() has already split on blank lines, so a newline inside a block
+  // is a wrapped sentence, not the end of the emphasis. The first real page rendered a whole quoted
+  // sentence with its asterisks showing because the quote happened to wrap.
+  s = s.replace(/(^|[\s(])\*([^*]+?)\*/g, '$1<em>$2</em>')
   return s.replace(/⟦(\d+)⟧/g, (_, i) => spans[Number(i)])
 }
 
@@ -86,6 +89,12 @@ function prose (md) {
     if (/^[-*]\s/.test(b)) {
       const items = b.split(/\n(?=[-*]\s)/).map(l => `<li>${inline(l.replace(/^[-*]\s+/, ''))}</li>`)
       return `<ul>${items.join('')}</ul>`
+    }
+    // A numbered list is how a spec states a sequence. Rendered as a paragraph it kept the digits and
+    // lost the sequence, which the first real page showed on the one block that mattered most.
+    if (/^\d+\.\s/.test(b)) {
+      const items = b.split(/\n(?=\d+\.\s)/).map(l => `<li>${inline(l.replace(/^\d+\.\s+/, ''))}</li>`)
+      return `<ol>${items.join('')}</ol>`
     }
     return `<p>${inline(b)}</p>`
   }).join('\n')
@@ -176,7 +185,7 @@ function render ({ spec, group, specFile, generated }) {
   blockquote{margin:12px 0;padding-left:14px;border-left:2px solid var(--rule);
     color:var(--ink-2);font-style:italic}
   blockquote p{margin:0}
-  ul{padding-left:20px;margin:0 0 12px}li{margin-bottom:5px;color:var(--ink-2)}
+  ul,ol{padding-left:22px;margin:0 0 12px}li{margin-bottom:5px;color:var(--ink-2)}
   a{color:var(--teal);text-underline-offset:3px}
   .answered{font-size:14px;color:var(--teal)}
   footer{border-top:1px solid var(--rule);margin-top:40px;padding-top:22px;font-size:13px;

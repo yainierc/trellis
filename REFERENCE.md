@@ -15,7 +15,7 @@ one source and this is it.
 
 ## What it actually does
 
-Five hooks the harness runs, six skills you invoke by asking, two agents, and eleven scripts.
+Five hooks the harness runs, six skills you invoke by asking, two agents, and twelve scripts.
 
 | Component | Fires when | Effect |
 |---|---|---|
@@ -32,7 +32,7 @@ Five hooks the harness runs, six skills you invoke by asking, two agents, and el
 | `plan` | "split this spec", "who works on what" |
 | `fleet` | "run the fleet", "launch the wave", "start these in parallel" |
 | `contract` | "start a contract to…" |
-| `ask` | "send these questions to business", "publish the open questions" |
+| `ask` | "send these questions to business", "publish the open questions", "did anyone answer" |
 
 | Agent | Role | Invoked with |
 |---|---|---|
@@ -70,10 +70,11 @@ whole value is stopping to have assumptions corrected, and it cannot.
 | `archive.mjs [--dry-run]` | Moves finished contracts and their specs out of the working set |
 | `questions.mjs <spec> --for "<audience>"` | Prints one audience's open questions, ready to send |
 | `publish-questions.mjs <spec> --for "<audience>"` | Renders those questions as a page for a reader who has no repository. `--record <url>` stores where it was published; `--url` reads it back. **It never publishes** — only the `ask` skill can, through the model's own tool |
+| `answer-question.mjs <spec> --id Q-01 --by "<name>" --answer "<text>"` | Lands one answer on a spec. Prints by default; `--apply` inserts it and then **proves the insertion is the only change, byte for byte**, abandoning the write if anything else moved. Refuses an unsigned answer, a second answer, and an unknown id |
 | `fleet-plan.mjs <dir> [--record\|--wave]` | What may run right now, why the rest may not, and the recorded base commit |
 | `digest.mjs [--since <ref>]` | What landed, under which contract, and what nobody could verify |
 | `build-docs.mjs` | Wraps `docs/*.html` into standalone files under `docs/dist/` |
-| `test-hooks.mjs` | The suite. 148 checks over throwaway fixture repositories, each one a real hook invocation |
+| `test-hooks.mjs` | The suite. 162 checks over throwaway fixture repositories, each one a real hook invocation |
 
 ---
 
@@ -111,7 +112,7 @@ anything the profile does not name.
 
 ### Everything the plugin writes to your disk
 
-Exhaustively — six things, and no others:
+Exhaustively — seven things, and no others:
 
 1. **A contract's `status:` line.** One line, never the body, so a gate cannot quietly amend the
    criteria it just failed (`core.md` §2). Written by the Stop gate on failure.
@@ -121,6 +122,9 @@ Exhaustively — six things, and no others:
 5. **`.trellis/pages/<spec>--<audience>.html`**, when you render a question page. Generated, and
    overwritten on every render — never edit one.
 6. **`.trellis/published.json`**, when you run `publish-questions.mjs --record`. A URL and a date.
+7. **One inserted answer block in a spec**, when you run `answer-question.mjs --apply`. Nothing else in
+   that file can change: the tool removes what it added and refuses to save unless the result is the
+   original byte for byte. §2 made checkable rather than promised.
 
 The hooks themselves write nothing. They answer allow or deny.
 
