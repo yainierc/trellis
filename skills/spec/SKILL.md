@@ -85,14 +85,43 @@ Copy `${CLAUDE_PLUGIN_ROOT}/templates/SPEC.md` into the repo's specs path and fi
   inferred does not go here.
 - **`## Out of scope`** — often the most valuable section, and usually the emptiest in a source
   document. `none` is a valid answer; empty is not.
-- **`## Open questions`** — the *missing* bucket **and every assumption**, phrased so the reader can
-  confirm or correct it. Name who has to answer where you can tell.
+- **`## Open questions`** — the *missing* bucket **and every assumption**, in the shape the template
+  fixes. This is the section the spec exists to produce, so it gets the most care:
+  - **Group by who answers**, never by order of discovery. The person deciding should read their six
+    questions, not scroll through twenty-three looking for theirs.
+  - **One plain sentence each**, in the decision-maker's own terms. Not a summary of the technical
+    framing — the *decision*. `"W1 — an inbound write with app-only auth and an Idempotency-Key"` is
+    not a question anyone outside engineering can answer; *"does the marketplace take the booking and
+    the money, or pass a lead to the supplier?"* is the same decision, answerable in ten seconds.
+  - **State what ships if nobody answers.** This is the line that makes silence expensive rather than
+    merely open, and it is the one most often missing. A real example from the field:
+    *"left open, manual confirmation ships by default — the slot is sold before it is blocked, and
+    the race is discovered by a customer."*
+  - Keep the technical framing beside it under **Detail**, for whoever implements.
 
 The cross-cutting frontmatter — `feature_flag`, `e2e`, `ceilings` — will usually be unanswerable at
 this stage. That is fine and it is the point: write `none` with an honest reason, or list it as an
 open question. **Do not invent a value to make the file look complete.**
 
 Set `status: draft`. It stays draft until a human says otherwise.
+
+**Name an `owner`** — the person or role who answers the open questions. A role is a valid answer
+where no individual has been named; `~` is not, and the validator refuses an approved spec without
+one. Do not promote a candidate you found in some other document into an owner: a name mentioned
+elsewhere as a possibility is not somebody who has agreed to answer.
+
+Then check the shape:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/validate-spec.mjs" <specs path> --all
+```
+
+And to send one audience their questions without making them clone a repository:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/questions.mjs" <spec.md> --list
+node "${CLAUDE_PLUGIN_ROOT}/scripts/questions.mjs" <spec.md> --for "<audience>"
+```
 
 ### 5. Stop at the gate
 
@@ -125,6 +154,9 @@ uninvited.
 | Two documents disagree and the spec picked one | The contradiction was tidied away | Report it. Choosing is the human's |
 | Frontmatter fully populated on day one | Cross-cutting fields invented to look complete | `none` with a reason, or an open question |
 | Contracts written straight from the spec | Skipped the human gate | The spec is `draft` until a person approves it |
+| A perfect question nobody ever answered | `owner: ~`, so it had no address | Name a person or a role. The validator blocks approval without one |
+| The business side did not engage | Questions written in engineering's terms | One plain sentence per question, in theirs. `questions.mjs --for` sends only theirs |
+| A decision was made by not making it | No stated default | Every question says what ships in the silence |
 | The spec agrees suspiciously well with an earlier one | A previous spec in `docs/specs/` was scanned as a source | The output paths are excluded. A prior spec is context, never a requirement |
 | The scan took minutes and read a licence file | No search root was established, so it walked the repo | Step 1: ask for the root, exclude machinery |
 | An annex in a subfolder was never opened | The search was not recursive | Recursion is on by default; the exclusions are what bound it |

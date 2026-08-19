@@ -3,7 +3,11 @@
 id: <slug>                     # kebab-case, unique; contracts reference it as <slug>-T-NN
 title: Short imperative title
 status: draft                  # draft | approved | superseded
-owner: <name>                  # the human who answers questions about this spec
+# Who answers the open questions below. REQUIRED before this spec leaves `draft` — a spec with no
+# owner is a set of questions with no address, and they go unanswered until somebody assumes instead.
+# A role ("APN Leadership", "Platform architect") is a valid answer when no individual has been named.
+# `~` is not. Do not promote a candidate found in some other document into an owner.
+owner: <name or role>
 date: <YYYY-MM-DD>
 supersedes: none               # spec id this replaces, or `none`
 
@@ -95,6 +99,24 @@ expect here and will not get, and why.
 
 ## Open questions
 
-What is still unanswered, and who has to answer it. A spec may be approved with open questions as
-long as no contract depends on one — a contract blocked on an open question should not have been
-written yet.
+**Grouped by who answers, not by order of discovery.** The person who has to decide should find their
+own section and read six questions, not scroll through twenty-three looking for theirs.
+
+Every question carries four things. The plain sentence is not a summary of the technical framing — it
+states the decision and its cost in the decision-maker's own terms, and the technical framing stays
+beside it for whoever implements.
+
+### <who answers — a name, or a role>
+
+**<id> · <the decision, as one plain sentence anyone can answer>**
+
+Two or three sentences of context. No jargon, no internal identifiers, no acronyms the reader has not
+already used themselves.
+
+- **If nobody answers:** what ships in the silence, and why that is itself a decision. This is the
+  line that makes an unanswered question expensive instead of merely open — the default is usually
+  the option nobody would have chosen deliberately.
+- **Detail:** the technical framing, the constraint it collides with, the source it came from.
+
+A spec may be approved with open questions, as long as no contract depends on one. A contract blocked
+on an open question should not have been written yet.

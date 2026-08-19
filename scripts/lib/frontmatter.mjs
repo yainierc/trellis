@@ -30,6 +30,25 @@ export function parseFrontmatter (text) {
     const [, key, raw] = kv
     currentList = null
     const value = raw.trim()
+
+    // Block scalars: `>` folds newlines into spaces, `|` keeps them; a trailing `-` strips the final
+    // newline. Specs use them constantly — a `flag_reason` is a sentence, not a token — while
+    // contracts never did, which is why a reader that could not read one looked finished for months.
+    // Read from the ORIGINAL line, not the comment-stripped copy: inside a block scalar a `#` is text.
+    const block = value.match(/^([|>])([-+]?)$/)
+    if (block) {
+      const [, style] = block
+      const body = []
+      const indent = (lines[i + 1] || '').match(/^\s*/)[0].length
+      while (i + 1 < end && (lines[i + 1].trim() === '' || (lines[i + 1].match(/^\s*/)[0].length >= indent && indent > 0))) {
+        body.push(lines[++i].slice(indent))
+      }
+      while (body.length && body[body.length - 1].trim() === '') body.pop()
+      data[key] = style === '|'
+        ? body.join('\n')
+        : body.reduce((acc, l) => (l.trim() === '' ? acc + '\n' : acc ? acc + ' ' + l.trim() : l.trim()), '')
+      continue
+    }
     if (value === '') { data[key] = []; currentList = key; continue }
     if (value === '[]') { data[key] = []; continue }
     const inline = value.match(/^\[(.*)\]$/)

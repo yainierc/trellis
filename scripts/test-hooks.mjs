@@ -381,6 +381,78 @@ const repo = opts => { const d = makeRepo(opts); cleanup.push(d); return d }
   check('archive: running it twice is a no-op', /Nothing to archive/.test(r.stdout), r.stdout)
 }
 
+// ── specs: owner, and questions with an address ──────────────────────────────
+{
+  const VS = join(ROOT, 'scripts', 'validate-spec.mjs')
+  const Q = join(ROOT, 'scripts', 'questions.mjs')
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trellis-spec-')))
+  cleanup.push(dir)
+  const run = (script, args) => spawnSync('node', [script, ...args], { encoding: 'utf8' })
+
+  const spec = (over = {}) => `---
+id: ${over.id || 'demo'}
+title: Demo
+status: ${over.status || 'draft'}
+owner: ${over.owner === undefined ? '~' : over.owner}
+date: 2026-08-19
+supersedes: none
+contracts: []
+feature_flag: none
+flag_reason: >-
+  A folded block scalar, which is what every real spec uses and what the reader could not read.
+e2e: none
+e2e_reason: none needed
+ceilings: none
+---
+# demo
+## Why
+x
+## Outcome
+x
+## Decisions
+x
+## Out of scope
+- none
+## Open questions
+${over.questions || `### APN Leadership
+
+**Q-01 · Does the marketplace take the booking, or pass a lead to the FBO?**
+
+The brief asserts both.
+
+- **If nobody answers:** the manual-confirmation shape ships by default and the race is found by a customer.
+- **Detail:** W1 vs W3.`}
+`
+  const write = (name, body) => { const f = join(dir, name); writeFileSync(f, body); return f }
+
+  // the block scalar the real specs exposed
+  let r = run(VS, [write('folded.md', spec())])
+  check('spec: a folded block scalar parses', !/neither a key nor a list item/.test(r.stdout), r.stdout)
+
+  check('spec: a draft with no owner is a warning, not an error', r.status === 0 && /owner is unset/.test(r.stdout), r.stdout)
+
+  r = run(VS, [write('approved.md', spec({ status: 'approved' }))])
+  check('spec: approved with no owner is an ERROR', r.status === 1 && /no address/.test(r.stdout), r.stdout)
+
+  r = run(VS, [write('owned.md', spec({ status: 'approved', owner: 'APN Leadership' }))])
+  check('spec: a role is a valid owner', r.status === 0, r.stdout)
+
+  r = run(VS, [write('nodefault.md', spec({
+    questions: '### APN Leadership\n\n**Q-01 · A question with no stated default?**\n\nContext.\n\n- **Detail:** x.'
+  }))])
+  check('spec: a question with no "If nobody answers" is warned', /do not say what ships/.test(r.stdout), r.stdout)
+
+  // the extractor
+  const owned = write('extract.md', spec({ status: 'approved', owner: 'APN Leadership' }))
+  r = run(Q, [owned, '--list'])
+  check('questions: --list names the audience', r.status === 0 && /APN Leadership/.test(r.stdout), r.stdout)
+  r = run(Q, [owned, '--for', 'apn leadership'])
+  check('questions: --for matches case-insensitively', r.status === 0 && /Q-01/.test(r.stdout), r.stdout)
+  check('questions: the output carries the default', /ships by default/.test(r.stdout), r.stdout)
+  r = run(Q, [owned, '--for', 'nobody'])
+  check('questions: an unknown audience exits non-zero', r.status === 1, r.stdout)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }
