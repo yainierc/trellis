@@ -167,7 +167,7 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.11.0</div>
+    <div class="eyebrow">Trellis · v0.11.1</div>
     <h1>Quickstart</h1>
     <p class="deck">
       Two commands to install, then one sentence per thing you want. Claude Code does the setup —
@@ -247,6 +247,16 @@ claude plugin install trellis@gmstek</pre>
       <span class="who">You say</span>
       <b>Start a contract to add rate limiting to the payments endpoint</b>
     </span>
+    <div class="note ok">
+      <span class="tag">More than one at a time</span>
+      <p>
+        For several pieces of work at once: <em>"split this spec"</em> gives you one contract per
+        person with non-overlapping file areas, and <em>"run the fleet"</em> starts the ones that are
+        ready — each in its own copy of the repository, from one recorded starting point. Nothing in a
+        wave merges on its own; a single failure holds the whole wave's integration, including the parts
+        that worked.
+      </p>
+    </div>
     <p>
       That runs <code>/trellis:contract</code>: it reads enough of the repo to write a contract that
       stands alone, declares which paths it may touch and how "done" gets checked as runnable
@@ -478,7 +488,7 @@ git checkout -b task/MY-T-01-short-slug</pre>
   </section>
 
   <footer>
-    Trellis v0.11.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    Trellis v0.11.1 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
     The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>

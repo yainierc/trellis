@@ -346,6 +346,7 @@
       <a href="#cycle">The cycle</a>
       <a href="#contract">The contract</a>
       <a href="#cross-cutting">The wave</a>
+      <a href="#fleet">In parallel</a>
       <a href="#status">Status</a>
       <a href="#install">Install</a>
       <a href="#glossary">Glossary</a>
@@ -355,7 +356,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.11.0 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.11.1 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -921,6 +922,41 @@
     </div>
   </section>
 
+  <!-- ══════════════ THE FLEET ══════════════ -->
+  <section id="fleet">
+    <div class="col">
+      <div class="eyebrow">In parallel</div>
+      <h2>Several contracts at once, without them colliding</h2>
+      <p class="lede">
+        This is what <code>writes</code> was always for. Two contracts may run at the same time when
+        their write paths are disjoint and neither depends on the other — and that is arithmetic, so a
+        script computes it rather than a person asserting it.
+      </p>
+      <p>
+        <code>/trellis:fleet</code> takes the contracts that are runnable right now, checks them against
+        the ceilings the repository declared — ports, licence seats, a shared test database — confirms
+        the set with a human, and starts each one as a subagent in <strong>its own git worktree,
+        branched from a single recorded base commit</strong>.
+      </p>
+      <p>
+        It is a launcher, not an orchestrator. Every contract in the wave already had its spec approved,
+        its plan agreed and its autonomy granted one at a time. Starting them together skips no gate —
+        and the distinction matters, because <strong>nothing in the wave ever merges</strong>. A single
+        blocked member holds the integration of the whole wave, including the members that passed:
+        partial integration is what leaves a tree nobody can reason about when a late contract fails.
+      </p>
+      <div class="note">
+        <span class="tag">No ledger</span>
+        <p>
+          The fleet tracks nothing. The Stop gate writes <code>blocked</code> into a contract when it
+          fails, so a wave's progress lives in the contract files themselves. A launcher keeping its own
+          record would have two sources of truth about the same thing, and the private one is always the
+          one that goes stale.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════════ GATES ══════════════ -->
   <section id="gates">
     <div class="col">
@@ -983,7 +1019,9 @@
           <tr><td><code>scripts/validate-contract.mjs</code></td><td>The structural gate, dependency-free</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>hooks/</code></td><td>Write boundary, git boundary, Stop gate, per-file lint</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>scripts/lib/</code></td><td>The readers the hooks and the validator share</td><td class="state"><span class="pill done">ready</span></td></tr>
-          <tr><td><code>agents/</code></td><td>Analyst, implementer, reviewer</td><td class="state"><span class="pill next">next</span></td></tr>
+          <tr><td><code>agents/reviewer</code> · <code>agents/implementer</code></td><td>Adversarial review; and execution that cannot self-certify</td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>skills/</code></td><td><code>init</code> · <code>spec</code> · <code>plan</code> · <code>contract</code> · <code>fleet</code></td><td class="state"><span class="pill done">ready</span></td></tr>
+          <tr><td><code>agents/</code></td><td>Stack specialists — rule-pack territory, not core</td><td class="state"><span class="pill next">next</span></td></tr>
           <tr><td><code>skills/</code></td><td><code>init</code> · <code>spec</code> · <code>contract</code> — adoption, scope from documents, starting work</td><td class="state"><span class="pill done">ready</span></td></tr>
           <tr><td><code>profiles/</code></td><td>Stack profiles: .NET + Angular, Bicep/Azure</td><td class="state"><span class="pill later">after</span></td></tr>
         </tbody>
@@ -994,13 +1032,15 @@
       <div class="note">
         <span class="tag">What installing it does today</span>
         <p>
-          The plugin declares <strong>four hooks and three skills</strong> — verified with
-          <code>claude plugin details trellis@skills-dir</code>. The hooks enforce: write boundary,
-          git boundary, Stop gate and per-file lint. The skills are what you invoke by asking:
-          <code>init</code> adopts a repository, <code>spec</code> turns requirement documents into a
-          spec, <code>contract</code> starts a piece of work. Everything is inert in any repository
-          without a <code>.trellis/profile.yml</code>, so installing it cannot disturb work that has
-          not opted in.
+          The plugin declares <strong>four hooks, five skills and two agents</strong> — verified with
+          <code>claude plugin details trellis@skills-dir</code>. The hooks enforce: write boundary, git
+          boundary, Stop gate and per-file lint. The skills are what you invoke by asking —
+          <code>init</code> adopts a repository, <code>spec</code> turns documents into a spec,
+          <code>plan</code> splits it per person, <code>contract</code> starts one piece of work, and
+          <code>fleet</code> runs several at once. The agents are the two roles that must not converse:
+          a reviewer that never reads the author's report, and an implementer that cannot declare itself
+          done. Everything is inert in any repository without a <code>.trellis/profile.yml</code>, so
+          installing it cannot disturb work that has not opted in.
         </p>
         <p>
           The CLI reports them as <em>harness-only — no model context cost</em>. That is the
@@ -1253,7 +1293,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.11.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
+      Trellis v0.11.1 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>
