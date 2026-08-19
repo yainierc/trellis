@@ -453,6 +453,40 @@ The brief asserts both.
   check('questions: an unknown audience exits non-zero', r.status === 1, r.stdout)
 }
 
+// ── digest ───────────────────────────────────────────────────────────────────
+{
+  const D = join(ROOT, 'scripts', 'digest.mjs')
+  const dir = repo()
+  const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'ignore' })
+  const run = (args) => spawnSync('node', [D, ...args], { cwd: dir, encoding: 'utf8' })
+
+  git('checkout', '-q', 'main')
+  git('tag', 'base')
+  // one finished contract, one still pending, one file nobody promised anything about
+  const c = (id, status) => contract(id, '- [ ] `true`\n- [ ] the reviewer is happy')
+    .replace(/^status: active$/m, `status: ${status}`).replace(/^id: FIX-T-01$/m, `id: ${id}`)
+  writeFileSync(join(dir, 'docs/contracts/DONE-T-01.md'), c('DONE-T-01', 'completed'))
+  writeFileSync(join(dir, 'docs/contracts/OPEN-T-01.md'), c('OPEN-T-01', 'pending'))
+  writeFileSync(join(dir, 'unpromised.txt'), 'nobody declared this\n')
+  git('add', '-A'); git('commit', '-qm', 'work')
+
+  let r = run(['--since', 'base'])
+  check('digest: exits 0', r.status === 0, r.stderr)
+  check('digest: names the finished contract', /DONE-T-01/.test(r.stdout), r.stdout)
+  const delivered = (r.stdout.split(/── Delivered under contract/)[1] || '').split(/──/)[0]
+  check('digest: does not claim the pending one landed', !/OPEN-T-01/.test(delivered), delivered)
+  check('digest: contract bookkeeping is not listed as unpromised work',
+    !/docs\/contracts\//.test(r.stdout.split(/Changed under no contract/)[1] || ''), r.stdout)
+  check('digest: flags the file under no contract', /unpromised\.txt/.test(r.stdout), r.stdout)
+  check('digest: reports what a machine could not check',
+    /could not be checked by machine/.test(r.stdout), r.stdout)
+  check('digest: writes nothing into the repo',
+    execFileSync('git', ['status', '--short'], { cwd: dir, encoding: 'utf8' }).trim() === '')
+
+  r = run(['--since', 'HEAD'])
+  check('digest: an empty range says so', /Nothing in this range/.test(r.stdout), r.stdout)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

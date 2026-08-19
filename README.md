@@ -81,7 +81,9 @@ real repository rather than to a preference.
 | `scripts/validate-spec.mjs` · `scripts/questions.mjs` — a spec needs an owner, and its questions an address | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
-| `agents/` — analyst, implementer, reviewer, specialists | next |
+| `agents/reviewer` — adversarial review, artifacts only, never the author's report | ✅ |
+| `scripts/digest.mjs` — what landed, under which contract, and what nobody could verify | ✅ |
+| `agents/` — analyst, implementer, specialists | next |
 | `skills/` — spec, task-start, task-run, task-verify, task-review, task-complete, fleet, index-sync | after |
 | `profiles/` — .NET + Angular, Bicep/Azure | after |
 
