@@ -89,7 +89,8 @@ real repository rather than to a preference.
 | `scripts/digest.mjs` — what landed, under which contract, and what nobody could verify | ✅ |
 | `skills/plan` · `scripts/parallel-matrix.mjs` — split a spec per person; parallelism derived, not asserted | ✅ |
 | `agents/implementer` — executes one contract, cannot self-certify | ✅ |
-| `agents/` — specialists, and an orchestrator | next |
+| `skills/fleet` · `scripts/fleet-plan.mjs` — run approved contracts in parallel, one worktree each | ✅ |
+| `agents/` — specialists | next |
 | `skills/` — spec, task-start, task-run, task-verify, task-review, task-complete, fleet, index-sync | after |
 | `profiles/` — .NET + Angular, Bicep/Azure | after |
 

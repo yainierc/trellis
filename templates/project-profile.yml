@@ -32,6 +32,8 @@ paths:
 git:
   base_branch: main
   branch_pattern: "task/{id}-{slug}"
+  # One worktree per contract, all branched from the same recorded base commit (core.md §7).
+  # Created by `/trellis:fleet`; the base commit is recorded in .trellis/wave.json. Gitignore both.
   worktree_root: .trellis/worktrees
   # PR target. Set to an integration branch when a whole spec must land as one PR — and read the
   # cost first: session PRs into an integration branch get NO CI signal until the final merge.
@@ -79,9 +81,12 @@ gates:
   domain_review: none
 
 concurrency:
+  # How many contracts `/trellis:fleet` will launch in one wave. Read by scripts/fleet-plan.mjs.
   max_parallel: 4
-  # Hard ceilings that are not about tokens — dev-server ports, CORS allow-lists, licence seats.
-  # State them or the fleet will exceed them and the failure will look like broken code.
+  # Hard ceilings that are not about tokens — dev-server ports, CORS allow-lists, licence seats,
+  # a shared test database. State them or the fleet will exceed them and the failure will look like
+  # broken code. `fleet-plan.mjs` warns loudly when this is unstated, and cannot check a ceiling it
+  # cannot interpret: it does not know what a seat is. `none` is a valid answer, deliberately given.
   ceilings: none
 
 tracker:

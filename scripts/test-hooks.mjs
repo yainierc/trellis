@@ -555,6 +555,79 @@ The brief asserts both.
   check('parallel-matrix: the validator agrees with what was written', p.status === 0, p.stdout)
 }
 
+// ── the fleet ────────────────────────────────────────────────────────────────
+//
+// Every decision the launcher makes BEFORE starting anything, which is where its failures live. The
+// launch itself needs live subagents and a fixture cannot be one.
+{
+  const FP = join(ROOT, 'scripts', 'fleet-plan.mjs')
+  const dir = repo({ branch: 'main' })
+  const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'ignore' })
+  const plan = (...a) => spawnSync('node', [FP, ...a], { cwd: dir, encoding: 'utf8' })
+
+  const c = (id, opts = {}) => contract(id, '- [ ] `true`')
+    .replace(/^id: FIX-T-01$/m, `id: ${id}`)
+    .replace(/^status: active$/m, `status: ${opts.status || 'pending'}`)
+    .replace(/^depends_on: \[\]$/m, `depends_on: ${JSON.stringify(opts.depends || [])}`)
+    .replace(/writes:\n  - src\/allowed\/\n  - docs\/notes\.md/, `writes:\n${(opts.writes || ['src/x/']).map(w => `  - ${w}`).join('\n')}`)
+
+  const put = (id, opts) => writeFileSync(join(dir, 'docs/contracts', id + '.md'), c(id, opts))
+  execFileSync('rm', [join(dir, 'docs/contracts/FIX-T-01.md')])
+
+  put('A-T-01', { writes: ['src/a/'] })
+  put('B-T-01', { writes: ['src/b/'] })
+  put('C-T-01', { writes: ['src/a/lib/'] })              // overlaps A — cannot share a wave
+  put('D-T-01', { writes: ['src/d/'], depends: ['A-T-01'] })  // waits on A
+  put('E-T-01', { writes: ['src/e/'], status: 'completed' })
+  git('add', '-A'); git('commit', '-qm', 'wave fixture')
+
+  let r = plan('docs/contracts')
+  check('fleet: exits 0 on a clean base branch', r.status === 0, r.stderr || r.stdout)
+  check('fleet: independent contracts are runnable', /A-T-01/.test(r.stdout) && /B-T-01/.test(r.stdout), r.stdout)
+  const held = r.stdout.split('Held back:')[1] || ''
+  check('fleet: an overlapping contract is held out of the wave', /C-T-01/.test(held) && /overlap/.test(held), held)
+  check('fleet: an unmet dependency is held, and says which', /D-T-01/.test(held) && /waiting on A-T-01/.test(held), held)
+  check('fleet: a completed contract is not offered', !/E-T-01/.test(r.stdout.split('Held back')[0]), r.stdout)
+  check('fleet: an unstated ceiling warns loudly', /ceilings is unstated/.test(r.stdout), r.stdout)
+
+  // max_parallel caps the wave
+  const prof = join(dir, '.trellis', 'profile.yml')
+  writeFileSync(prof, readFileSync(prof, 'utf8') + 'concurrency:\n  max_parallel: 1\n  ceilings: "one dev server on 4200"\n')
+  r = plan('docs/contracts')
+  check('fleet: max_parallel caps the wave', /Runnable now: 1 of 2 eligible/.test(r.stdout), r.stdout)
+  check('fleet: declared ceilings are read back', /one dev server on 4200/.test(r.stdout), r.stdout)
+
+  // §7 — a wave must branch from one recorded base commit, so not from a feature branch
+  git('checkout', '-qb', 'task/A-T-01-thing')
+  r = plan('docs/contracts')
+  check('fleet: refuses to launch off the base branch', r.status === 1 && /not the base branch/.test(r.stdout), r.stdout)
+  git('checkout', '-q', 'main')
+
+  // an active contract in this checkout means something is already writing this tree
+  put('F-T-01', { writes: ['src/f/'], status: 'active' })
+  r = plan('docs/contracts')
+  check('fleet: refuses while a contract is already active', r.status === 1 && /already active/.test(r.stdout), r.stdout)
+  execFileSync('rm', [join(dir, 'docs/contracts/F-T-01.md')])
+
+  // the recorded wave, and reading it back
+  r = plan('docs/contracts', '--record')
+  check('fleet: --record writes the wave', r.status === 0 && existsSync(join(dir, '.trellis/wave.json')), r.stdout)
+  const wave = JSON.parse(readFileSync(join(dir, '.trellis/wave.json'), 'utf8'))
+  check('fleet: the wave records one base commit', /^[0-9a-f]{40}$/.test(wave.base_commit || ''), JSON.stringify(wave))
+  check('fleet: the wave records its contracts', Array.isArray(wave.contracts) && wave.contracts.length === 1, JSON.stringify(wave))
+
+  r = plan('--wave')
+  check('fleet: --wave reads the recorded wave back', /Base commit/.test(r.stdout), r.stdout)
+  check('fleet: nothing green yet means nothing integrates', /Nothing integrates|still in flight/.test(r.stdout), r.stdout)
+
+  // a blocked member holds the whole wave, including the ones that passed (§7)
+  const id = wave.contracts[0]
+  const f = join(dir, 'docs/contracts', id + '.md')
+  writeFileSync(f, readFileSync(f, 'utf8').replace(/^status: pending$/m, 'status: blocked'))
+  r = plan('--wave')
+  check('fleet: a blocked member holds the whole wave', r.status === 1 && /Integration of the whole wave is held/.test(r.stdout), r.stdout)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

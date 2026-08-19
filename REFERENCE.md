@@ -11,7 +11,7 @@ implemented, it says so.
 
 ## What it actually does
 
-Four hooks the harness runs, four skills you invoke by asking, two agents, and eight scripts.
+Four hooks the harness runs, five skills you invoke by asking, two agents, and nine scripts.
 
 | Component | Fires when | Effect |
 |---|---|---|
@@ -25,6 +25,7 @@ Four hooks the harness runs, four skills you invoke by asking, two agents, and e
 | `init` | "adopt trellis here", "set up trellis" |
 | `spec` | "write a spec from these documents" |
 | `plan` | "split this spec", "who works on what" |
+| `fleet` | "run the fleet", "launch the wave", "start these in parallel" |
 | `contract` | "start a contract to…" |
 
 | Agent | Role | Invoked with |
@@ -61,9 +62,10 @@ whole value is stopping to have assumptions corrected, and it cannot.
 | `parallel-matrix.mjs <dir> [--write]` | Derives `parallel_safe_with` from `writes` + the transitive dependency graph |
 | `archive.mjs [--dry-run]` | Moves finished contracts and their specs out of the working set |
 | `questions.mjs <spec> --for "<audience>"` | Prints one audience's open questions, ready to send |
+| `fleet-plan.mjs <dir> [--record\|--wave]` | What may run right now, why the rest may not, and the recorded base commit |
 | `digest.mjs [--since <ref>]` | What landed, under which contract, and what nobody could verify |
 | `build-docs.mjs` | Wraps `docs/*.html` into standalone files under `docs/dist/` |
-| `test-hooks.mjs` | The suite. 97 checks over throwaway fixture repositories, each one a real hook invocation |
+| `test-hooks.mjs` | The suite. 113 checks over throwaway fixture repositories, each one a real hook invocation |
 
 ---
 
@@ -78,7 +80,9 @@ paths that repository's own `.trellis/profile.yml` declares.
 │   ├── profile.yml          the opt-in. No profile ⇒ the plugin is inert here
 │   ├── active               OPTIONAL, gitignored: one line naming the contract in flight,
 │   │                        for repositories with no git. The branch does this otherwise
-│   └── worktrees/           gitignored. Declared in the profile; nothing creates them yet
+│   ├── wave.json            gitignored. The base commit a wave branched from, and its contracts.
+│   │                        §7 requires it recorded; recorded means verifiable, not committed
+│   └── worktrees/           gitignored. One per contract in a wave, all from that base commit
 ├── docs/
 │   ├── specs/               what to build. `_`-prefixed folders are skipped
 │   │   └── archive/<year>/   specs whose whole wave finished
@@ -133,6 +137,8 @@ Graduated autonomy inverts that: if a precondition cannot be *verified*, the ans
 | `commands.build` · `test_fast` · `lint` | the Stop gate |
 | `commands.format_file` · `lint_file` | the PostToolUse hook |
 | `gates.stop` | the Stop gate, which gates run |
+| `concurrency.max_parallel` · `ceilings` | `fleet-plan.mjs` — the wave size, and the ceiling warning |
+| `git.worktree_root` | `/trellis:fleet` — one worktree per contract |
 | `agents` | the write boundary, per-role areas — binds subagents only |
 
 ### Declared and not wired up
@@ -144,9 +150,9 @@ Honesty is cheaper than a surprise. These are in the template and **nothing read
 | `paths.runbooks` | operational procedures | Location convention only. No template, no validator |
 | `paths.decisions` | ADRs | Convention. `archive.mjs` deliberately does not touch ADRs |
 | `git.pr_target` | landing a whole spec as one PR | Nothing opens PRs yet |
-| `git.worktree_root` | one worktree per contract | Nothing creates worktrees yet |
+
 | `commands.format_check` · `typecheck` | extra gates | Not in `gates.stop`'s vocabulary |
-| `concurrency.max_parallel` · `ceilings` | fleet scheduling | Nothing schedules a fleet yet |
+
 | `tracker.*` (ADO) | work items | Designed on day one, never implemented |
 | `rules.packs` · `rules.local` | layered rule packs | Convention only |
 | `gates.pre_pr` | review, slow tests | The reviewer agent exists; nothing invokes it automatically |

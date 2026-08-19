@@ -2,6 +2,7 @@
 tmp/
 .trellis/worktrees/
 .trellis/active
+.trellis/wave.json
 .DS_Store
 
 # local permissions, per machine — never committed
