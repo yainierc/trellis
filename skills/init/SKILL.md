@@ -140,6 +140,12 @@ Then report, in this shape:
   branch matching `branch_pattern`. Say this explicitly. The most common confusion with Trellis is a
   user assuming the guardrails are active when they are on `main`.
 - What to do next: `/trellis:contract` to start the first piece of work.
+- **Where to read about it**, because a person who just adopted a tool is the only person who will
+  ever want to. Name the pages in the installed plugin and say what each is for in one clause:
+  `docs/getting-started.html` (install and first use), `docs/overview.html` (the concepts and why the
+  gates exist), `docs/reference.html` (the map — every component, where artefacts go, and what is
+  declared but not wired up yet). `REFERENCE.md` is the same map in markdown, which is the one you
+  should read yourself before assuming a convention.
 
 ## Failure modes seen in the wild
 

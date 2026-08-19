@@ -640,6 +640,40 @@ The brief asserts both.
   check('fleet: a blocked member holds the whole wave', r.status === 1 && /Integration of the whole wave is held/.test(r.stdout), r.stdout)
 }
 
+// ── session start: the one line of always-on cost ────────────────────────────
+{
+  const dir = repo({ branch: 'main' })
+  const bare = realpathSync(mkdtempSync(join(tmpdir(), 'trellis-nogov-')))
+  cleanup.push(bare)
+  const start = (cwd, pluginRoot) => {
+    const r = spawnSync('node', [join(HANDLERS, 'session-start.mjs')], {
+      input: JSON.stringify({ hook_event_name: 'SessionStart', cwd }),
+      encoding: 'utf8',
+      env: { ...process.env, CLAUDE_PLUGIN_ROOT: pluginRoot ?? ROOT }
+    })
+    try { return JSON.parse(r.stdout || '{}') } catch { return { unparsed: r.stdout } }
+  }
+
+  let out = start(bare)
+  check('session-start: silent in a repo that did not opt in', !out.additionalContext, JSON.stringify(out))
+
+  out = start(dir)
+  const ctx = out.additionalContext || ''
+  check('session-start: names the repo as governed', /governs this repo/.test(ctx), ctx)
+  check('session-start: says what arms enforcement', /Silent until a branch matches/.test(ctx), ctx)
+  check('session-start: points at the map', /REFERENCE\.md is the map/.test(ctx), ctx)
+  check('session-start: names the rendered pages', /docs\/reference\.html/.test(ctx) && /docs\/getting-started\.html/.test(ctx), ctx)
+
+  // The cost of the only hook that spends context, asserted rather than assumed. If this fails the
+  // line grew — decide deliberately whether it earned the tokens, and move the bound if it did.
+  check(`session-start: stays under ~120 tokens (is ~${Math.round(ctx.length / 4)})`, ctx.length < 480, `${ctx.length} chars`)
+
+  // A plugin root without the docs must not advertise files that are not there.
+  out = start(dir, bare)
+  check('session-start: never points at a page that is missing',
+    !/docs\/reference\.html/.test(out.additionalContext || ''), out.additionalContext)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

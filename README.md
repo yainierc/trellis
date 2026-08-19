@@ -59,6 +59,10 @@ When a skill and a rule appear to disagree, **the rule wins and the skill is the
 `REFERENCE.md` is the map: what each component does, where artefacts are stored, which profile fields
 the code actually reads, and which are declared and not wired up yet. Read it before relying on one.
 
+`docs/reference.html` is that same file rendered as a page, and `docs/getting-started.html` and
+`docs/overview.html` are written by hand. All three live in the installed plugin, and the generated one
+is generated — `scripts/build-docs.mjs` writes it, nobody edits it.
+
 
 | Document | For |
 |---|---|
