@@ -110,8 +110,10 @@ const files = []
 ;(function collect (p) {
   const st = statSync(p)
   if (st.isDirectory()) {
-    // The archive is history. A spec archived under an old shape is not a defect to report today.
-    if (basename(p) === 'archive') return
+    // The archive is history, and a `_`-prefixed directory is set aside on purpose — a baseline kept
+    // for comparison, an old draft. Neither is a defect to report today. The same `_` convention
+    // already applies to filenames; applying it to files but not directories was an oversight.
+    if (basename(p) === 'archive' || basename(p).startsWith('_')) return
     for (const e of readdirSync(p)) collect(join(p, e))
     return
   }

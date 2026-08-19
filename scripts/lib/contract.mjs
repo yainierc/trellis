@@ -64,6 +64,9 @@ export function contractFiles (dir, { archiveName = 'archive' } = {}) {
   ;(function walk (p, inArchive) {
     const st = statSync(p)
     if (st.isDirectory()) {
+      // A `_`-prefixed directory is set aside deliberately — a baseline, an old draft — and takes no
+      // part, exactly as a `_`-prefixed file does not.
+      if (basename(p).startsWith('_')) return
       const here = inArchive || basename(p) === archiveName
       for (const e of readdirSync(p)) walk(join(p, e), here)
       return
