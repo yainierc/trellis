@@ -107,8 +107,8 @@ per-agent table denies a write outside an agent's areas while leaving the main s
 The harness only reports `agent_type` for subagents. A human in a session carries none, so the table
 cannot bind them — Iver working in Jess's area would not be stopped.
 
-- **If nobody answers:** the areas bind subagents only, and the human-to-human boundary stays a
-  convention. That is probably right for now, and it means the profile's promise is narrower than it
-  reads.
-- **Detail:** binding humans would need per-person local config, the `git config trellis.role`
-  pattern already used for tracker identity.
+**Answered 2026-08-19 — Yainier Caraballo:** humans too, and as a prompt rather than a refusal.
+*"Debería dejarme pero darme un warning donde yo confirme que sé que estoy escribiendo algo de otra
+área"* — one person is often both business and developer, and on a larger team the same prompt is
+where somebody says "that is Jess's file" out loud. A person identifies themselves with
+`git config trellis.role`; the boundary answers `escalate`, never `deny`.

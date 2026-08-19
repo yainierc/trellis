@@ -3,7 +3,8 @@
 // Verified against Claude Code 2.1.234 and the hooks reference:
 //
 //   · the event arrives as JSON on stdin; the answer is JSON on stdout, exit 0
-//   · PreToolUse denies with hookSpecificOutput.permissionDecision = "deny"
+//   · PreToolUse answers with hookSpecificOutput.permissionDecision — "deny" refuses outright,
+//     "escalate" hands the decision to the human, "allow" is the ordinary silence
 //   · Stop has NO decision field — exit 2 is the only way to prevent a stop, and this framework
 //     deliberately never uses it (see docs/specs/enforcement-hooks.md, decision 3)
 //   · PostToolUse cannot block; the tool already ran
@@ -36,6 +37,19 @@ export const deny = reason => emit({
   hookSpecificOutput: {
     hookEventName: 'PreToolUse',
     permissionDecision: 'deny',
+    permissionDecisionReason: `trellis: ${reason}`
+  }
+})
+
+// Ask the human instead of deciding. `escalate` is the harness's third answer, and it is the right
+// one whenever the boundary is a boundary of *ownership* rather than of safety: crossing into another
+// person's area is often legitimate — the same person is frequently both business and developer — and
+// what matters is that they know they are doing it. A deny would be wrong; a silent allow would be
+// worse.
+export const escalate = reason => emit({
+  hookSpecificOutput: {
+    hookEventName: 'PreToolUse',
+    permissionDecision: 'escalate',
     permissionDecisionReason: `trellis: ${reason}`
   }
 })

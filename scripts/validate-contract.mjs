@@ -81,6 +81,19 @@ function validate (file, text) {
   if (minutes !== null && minutes < 30) {
     warnings.push(`estimate ${data.estimate} is under 30min — usually a sign of over-decomposition; consider bundling into a neighbour`)
   }
+  if (data.spec && data.spec !== 'none' && !/^<.*>$/.test(String(data.spec))) {
+    // A contract is immutable during execution (§2) and nothing extends that to its parent. Starting
+    // against a spec with unanswered questions is allowed — it is the user's call — but never silently.
+    try {
+      const specFile = join(process.cwd(), String(data.spec).endsWith('.md') ? data.spec : data.spec + '.md')
+      if (statSync(specFile).isFile()) {
+        const spec = readFileSync(specFile, 'utf8')
+        const oq = section(spec.split(/^---\s*$/m).slice(2).join('---'), '## Open questions') || ''
+        const n = (oq.match(/^\*\*.+?·.+?\*\*\s*$/gm) || []).length
+        if (n) warnings.push(`parent spec has ${n} open question${n === 1 ? '' : 's'} — allowed, but the user should be told before work starts against it`)
+      }
+    } catch { /* spec not on disk from here; the skill checks it too */ }
+  }
   if (data.spec === null) warnings.push('spec is unset — state `none` and declare the work mechanical, or attach the contract to its spec')
 
   return { errors, warnings, data }

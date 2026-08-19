@@ -15,7 +15,7 @@ Four hooks the harness runs, five skills you invoke by asking, two agents, and n
 
 | Component | Fires when | Effect |
 |---|---|---|
-| **PreToolUse** `write-boundary` | any `Edit` · `Write` · `NotebookEdit` | Denies a write outside the active contract's `writes`, outside the repo root, to the contract itself, or outside the area the agent's role owns |
+| **PreToolUse** `write-boundary` | any `Edit` · `Write` · `NotebookEdit` | **Denies** a write outside the active contract's `writes`, outside the repo root, or to the contract itself. **Asks the human** when the write is inside the contract but outside the area their role owns — crossing an area is often legitimate; crossing it unknowingly is not |
 | **PreToolUse** `git-boundary` | a `git` or `gh` command | Denies force-push, push to the base branch and merging a PR by hand — always. Denies push, PR, merge, rebase and branch-switch while a contract is in flight, unless it was granted autonomy |
 | **PostToolUse** `format-file` | after `Edit` · `Write` | Runs the profile's `format_file` and `lint_file` on the file just written. Cannot block — the tool already ran |
 | **Stop** · **SubagentStop** | a session tries to close | Re-runs `build`, `lint`, `test_fast` and every `done_when` criterion. On failure, writes `status: blocked` and says so. **Never blocks the close** — see `docs/adr/…` and `core.md` §8 |
@@ -121,6 +121,10 @@ Two conditions, both required, and **silence is the normal state**:
 Outside those, every hook returns "no opinion". That is deliberate: a guardrail that blocks ordinary
 work in every repository it is installed in gets uninstalled, and then it protects nothing.
 
+Three answers, not two: **deny** for a boundary of safety, **ask** for a boundary of ownership, and
+silence for everything else. An area is owned, not dangerous — so crossing one prompts rather than
+refuses.
+
 **Guards fail open. Exceptions fail closed.** A hook that cannot resolve a contract allows the call.
 Graduated autonomy inverts that: if a precondition cannot be *verified*, the answer is no.
 
@@ -139,7 +143,7 @@ Graduated autonomy inverts that: if a precondition cannot be *verified*, the ans
 | `gates.stop` | the Stop gate, which gates run |
 | `concurrency.max_parallel` · `ceilings` | `fleet-plan.mjs` — the wave size, and the ceiling warning |
 | `git.worktree_root` | `/trellis:fleet` — one worktree per contract |
-| `agents` | the write boundary, per-role areas — binds subagents only |
+| `agents` | the write boundary, per-role areas. Binds a subagent by `agent_type`, a person by `git config trellis.role` |
 
 ### Declared and not wired up
 

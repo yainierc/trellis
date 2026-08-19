@@ -9,10 +9,21 @@
 // installed in gets uninstalled, and then it protects nothing.
 
 import { resolve } from 'node:path'
-import { readEvent, allow, allowWithWarning, deny, guard } from '../../scripts/lib/hook.mjs'
+import { execFileSync } from 'node:child_process'
+import { readEvent, allow, allowWithWarning, deny, escalate, guard } from '../../scripts/lib/hook.mjs'
 import { loadProfile } from '../../scripts/lib/profile.mjs'
 import { resolveActiveContract } from '../../scripts/lib/contract.mjs'
 import { covers, within, toRepoPath } from '../../scripts/lib/paths.mjs'
+
+// A person's role, from local git config. The same pattern the profile already uses for tracker
+// identity: "resolved per developer, never hardcoded in a committed file".
+function localRole (cwd) {
+  try {
+    return execFileSync('git', ['config', '--get', 'trellis.role'], {
+      cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']
+    }).trim() || null
+  } catch { return null }
+}
 
 guard(async () => {
   const event = await readEvent()
@@ -62,27 +73,32 @@ guard(async () => {
   // our developer is going to be working on." The profile has carried that table since the first
   // commit and claimed the hook enforced it; it did not, which made it a note rather than a boundary.
   //
-  // It binds only when the harness reports an agent type — a human session carries none, and a rule
-  // that blocked those would make the table unusable the day it is first filled in.
-  const agentType = event.agent_type
+  // Whose area is this? The harness reports `agent_type` for a subagent. A human session carries
+  // none, so a person identifies themselves the way the profile already asks developers to identify
+  // themselves for the tracker: `git config trellis.role`, local and never committed. Unset means the
+  // table does not apply to this session.
+  const role = event.agent_type || localRole(cwd)
   const table = profile.agents
-  if (agentType && table && Object.keys(table).length) {
-    if (!(agentType in table)) {
+  if (role && table && Object.keys(table).length) {
+    if (!(role in table)) {
       return deny(
-        `agent type "${agentType}" is not listed in the profile's \`agents:\` table, and an agent ` +
-        'that is not listed writes nothing. Add it with the paths it owns, or run this work as a ' +
-        'listed role.'
+        `role "${role}" is not listed in the profile's \`agents:\` table, and a role that is not ` +
+        'listed writes nothing. Add it with the areas it owns, or work as a listed role.'
       )
     }
-    const areas = table[agentType]
+    const areas = table[role]
     // An empty list means "listed, no further restriction" — `implementer: []` is the template's own
     // default, and reading it as "nothing" would deny every write on the day the table is created.
     if (Array.isArray(areas) && areas.length && !areas.some(a => covers(a, repoPath))) {
-      return deny(
-        `${repoPath} is inside ${active.id}'s \`writes\` but outside the areas "${agentType}" owns.\n` +
-        `Owned: ${areas.join(', ')}\n` +
-        'Areas are allocated per person in planning so two people do not write the same files. ' +
-        'Changing them is a planning decision, not a mid-flight one.'
+      // ESCALATE, not deny. Crossing into another area is frequently legitimate — one person is often
+      // both business and developer, and on a small team that is the normal case. What must not happen
+      // is crossing without noticing. On a larger team the same prompt is the moment somebody says
+      // "that is Jess's file" out loud.
+      return escalate(
+        `${repoPath} is inside ${active.id}'s \`writes\` but outside the areas "${role}" owns.\n` +
+        `Owned by "${role}": ${areas.join(', ')}\n` +
+        'Areas were allocated in planning so two people do not write the same files. Confirm if you ' +
+        'know you are working outside yours; if somebody else owns this, it is theirs to change.'
       )
     }
   }

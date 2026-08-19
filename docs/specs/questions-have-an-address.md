@@ -108,6 +108,6 @@ and nothing tells you which one the reader used.
 Today nothing stops it. A spec can sit at `draft` with six open questions while somebody starts
 implementing the parts that seem settled.
 
-- **If nobody answers:** contracts get written against a moving target, and the framework's own §2 —
-  the contract is immutable during execution — protects a contract whose parent spec is not.
-- **Detail:** the check would live in the spec validator and in `/trellis:contract`'s pre-conditions.
+**Answered 2026-08-19 — Yainier Caraballo:** yes, allowed. *"Con que se avise y el usuario confirme
+se puede, es decisión suya."* Implemented as a warning in `/trellis:contract` step 2b and in
+`validate-contract.mjs`, never as a refusal. The user's call, but only if the user is asked.

@@ -111,7 +111,7 @@ One reference project has its analyst name an ADR need and refuse to settle it i
 currently says the same for the `spec` skill, and an agent with write access to `paths.decisions`
 could go further.
 
-- **If nobody answers:** the analyst names the need and a human writes the ADR. That is the safer
-  default and it is what ships.
-- **Detail:** an ADR is a decision, and a role that both proposes and records a decision has removed
-  the step where somebody agreed to it.
+**Answered 2026-08-19 — Yainier Caraballo:** signal it, leave a record that it is needed or
+recommended, and do not create it. Recorded in two places so one mention cannot lose it: a row in the
+spec's `## Decisions` table reading **ADR needed — not written**, and an open question addressed to
+whoever can settle it. An empty `docs/adr/` after a run is correct.

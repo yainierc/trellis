@@ -58,6 +58,7 @@ recorded in an ADR is a fact and is not relitigated (rules/core.md §9).
 | Decision | Position | Where |
 |---|---|---|
 | <what was decided> | <the position taken> | here · `docs/adr/NNNN-…` |
+| <a decision that is needed and not made> | *open* | **ADR needed — not written** |
 
 **Considered and refused:** <mechanism> — <why>. Recorded because that record is the only thing
 stopping it from being re-proposed later as a fresh idea.

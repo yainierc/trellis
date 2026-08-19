@@ -107,10 +107,12 @@ agents:
   # planning so two people never write the same files, and enforced by the write-boundary hook on top
   # of the contract's own `writes`.
   #
-  # It binds only when the harness reports an agent type, which it does for subagents and not for a
-  # human session. So this constrains delegated work, not the person at the keyboard.
-  #   listed with paths  → may write only inside them, and only inside the contract's writes
-  #   listed as []       → no restriction beyond the contract
+  # Who is bound: a subagent by its agent type, and a person by `git config trellis.role` — local,
+  # per developer, never committed, the same pattern used for tracker identity. Unset ⇒ not bound.
+  #   listed with paths  → writing outside them ASKS THE HUMAN to confirm, and never refuses outright.
+  #                        Crossing an area is often legitimate: one person is frequently both
+  #                        business and developer. What must not happen is crossing without noticing
+  #   listed as []       → no restriction beyond the contract's own writes
   #   not listed at all  → writes nothing
   implementer: []              # ships with the plugin — executes one contract
   reviewer: []                 # ships with the plugin — adversarial review, artifacts only

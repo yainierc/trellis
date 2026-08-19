@@ -104,8 +104,6 @@ fleet makes it tempting because one failure among four looks like noise. It is n
 Today it warns. A repository with a web app almost certainly has a port constraint, and `none` there is
 more likely to be an unanswered question than a true absence.
 
-- **If nobody answers:** it warns and launches. Four subagents contend for one port, and the failure
-  looks like broken code rather than like contention — which is exactly what the profile's own comment
-  warns about.
-- **Detail:** detecting "plainly has a dev server" is the same kind of inference this plugin refuses
-  elsewhere, so the honest fix is probably to make `ceilings` a required answer rather than to guess.
+**Answered 2026-08-19 — Yainier Caraballo:** it stays a warning. Guessing whether a repository
+"plainly has a dev server" is the same inference this plugin refuses everywhere else, and a launcher
+that refused on a guess would be wrong more often than the contention it prevented.

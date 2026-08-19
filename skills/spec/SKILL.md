@@ -138,12 +138,26 @@ Then stop. **Do not write contracts.** At this stage there is no stack, no paths
 declare `writes` against, and a contract with invented paths is worse than no contract at all.
 Decomposition comes after a human has approved the spec and a stack exists.
 
-### 6. Suggest recording the decisions that already exist
+### 6. Where a decision needs an ADR, leave the record — and do not write it
 
-If the reading surfaced a real decision — a stack, a hosting model, a data store, an integration that
-has to be honoured — say that it belongs in an ADR. Those are cheapest to record now and are exactly
-what gets relitigated in three months by someone who was not in the room. Offer; do not write ADRs
-uninvited.
+If the reading surfaced a real architectural decision — a stack, a hosting model, a data store, an
+integration that must be honoured — it belongs in an ADR. Those are cheapest to record now and are
+exactly what gets relitigated in three months by somebody who was not in the room.
+
+**You do not create the ADR.** A role that both proposes a decision and records it has removed the step
+where somebody agreed to it.
+
+What you do instead is leave the record in **two** places, so it cannot be lost by being mentioned
+once:
+
+1. A row in the spec's `## Decisions` table, with the position left open and `where` reading
+   **`ADR needed — not written`**. It sits beside the decisions that *were* made, which is where anybody
+   comparing them will look.
+2. An open question addressed to whoever can settle it, with its **If nobody answers** line — usually
+   *"the decision stays implicit, and the first person to need it will make it alone."*
+
+Say plainly in your closing report which ADRs are needed and who you think owns each. Then stop. An
+empty `docs/adr/` after your run is correct; a stub nobody agreed to is not.
 
 ## Failure modes seen in the wild
 

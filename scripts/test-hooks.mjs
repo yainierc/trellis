@@ -505,16 +505,28 @@ The brief asserts both.
   check('areas: inside both writes and the role area is allowed', decision(r) === null, `${decision(r)}: ${reason(r)}`)
 
   r = fire('write-boundary.mjs', withAgent(dir, join(dir, 'docs/notes.md'), 'implementer'))
-  check('areas: inside writes but outside the role area is denied', decision(r) === 'deny', `got ${decision(r)}`)
-  check('areas: the refusal names what the role owns', /Owned: src\/allowed\//.test(reason(r)), reason(r))
+  // Escalate, not deny: crossing an ownership boundary is often legitimate — one person is frequently
+  // both business and developer — and what matters is that they know they are doing it.
+  check('areas: crossing into another area ESCALATES to the human', decision(r) === 'escalate', `got ${decision(r)}`)
+  check('areas: the prompt names what the role owns', /Owned by "implementer": src\/allowed\//.test(reason(r)), reason(r))
+  check('areas: and invites them to confirm', /Confirm if you know/.test(reason(r)), reason(r))
 
   r = fire('write-boundary.mjs', withAgent(dir, join(dir, 'docs/notes.md'), 'stranger'))
-  check('areas: an unlisted agent type writes nothing', decision(r) === 'deny', `got ${decision(r)}`)
+  check('areas: an unlisted role still writes nothing', decision(r) === 'deny', `got ${decision(r)}`)
   check('areas: it says why', /not listed/.test(reason(r)), reason(r))
 
-  // the human session carries no agent_type and must be untouched by the table
+  // A human session carries no agent_type. With no local role configured the table cannot apply.
   r = fire('write-boundary.mjs', write(dir, join(dir, 'docs/notes.md')))
-  check('areas: a session with no agent_type is not bound by the table', decision(r) === null, `${decision(r)}: ${reason(r)}`)
+  check('areas: a session with no role configured is not bound', decision(r) === null, `${decision(r)}: ${reason(r)}`)
+
+  // But a person who identified themselves gets the same prompt a subagent would — the same pattern
+  // the profile already uses for tracker identity: local git config, never committed.
+  execFileSync('git', ['config', 'trellis.role', 'implementer'], { cwd: dir, stdio: 'ignore' })
+  r = fire('write-boundary.mjs', write(dir, join(dir, 'docs/notes.md')))
+  check('areas: a human with a configured role is asked too', decision(r) === 'escalate', `got ${decision(r)}`)
+  r = fire('write-boundary.mjs', write(dir, join(dir, 'src/allowed/x.ts')))
+  check('areas: inside their own area they are not asked', decision(r) === null, `${decision(r)}: ${reason(r)}`)
+  execFileSync('git', ['config', '--unset', 'trellis.role'], { cwd: dir, stdio: 'ignore' })
 
   // ── the derived matrix ──
   const m = repo()
