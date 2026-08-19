@@ -107,5 +107,5 @@ agents:
   #   listed with paths  → may write only inside them, and only inside the contract's writes
   #   listed as []       → no restriction beyond the contract
   #   not listed at all  → writes nothing
-  implementer: []
-  reviewer: []
+  implementer: []              # ships with the plugin — executes one contract
+  reviewer: []                 # ships with the plugin — adversarial review, artifacts only

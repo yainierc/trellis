@@ -11,7 +11,7 @@ implemented, it says so.
 
 ## What it actually does
 
-Four hooks the harness runs, four skills you invoke by asking, one agent, and eight scripts.
+Four hooks the harness runs, four skills you invoke by asking, two agents, and eight scripts.
 
 | Component | Fires when | Effect |
 |---|---|---|
@@ -27,9 +27,32 @@ Four hooks the harness runs, four skills you invoke by asking, one agent, and ei
 | `plan` | "split this spec", "who works on what" |
 | `contract` | "start a contract to…" |
 
-| Agent | Role |
-|---|---|
-| `reviewer` | Adversarial review before a pull request. Reads artifacts, never the author's report |
+| Agent | Role | Invoked with |
+|---|---|---|
+| `reviewer` | Adversarial review before a pull request. Reads artifacts, never the author's report | a contract and its diff |
+| `implementer` | Executes one contract. Cannot edit it, cannot declare itself done | a contract path |
+
+### Why some of these are skills and others are agents
+
+The distinction is not seniority or size. It is one question:
+
+> **Skill when the work needs to ask. Agent when the work must not see, or must not be seen.**
+
+An agent runs as a subagent: its own context window, a reduced tool set, and an `agent_type` the
+harness reports. What it cannot do is hold a conversation.
+
+- **All four skills ask something.** `init` asks before overwriting a profile you tuned. `spec`
+  asks which documents matter and puts its assumptions up for correction. `plan` asks who owns each
+  area rather than guessing. `contract` asks how far it may carry itself, before the branch exists.
+  A subagent would have to guess at exactly the point where guessing is the failure.
+- **`reviewer` must not see.** `core.md` §5 requires that it never read the author's self-report. An
+  isolated context is what guarantees it; as a skill it would read the conversation inevitably.
+- **`implementer` must not be seen.** Two hundred tool calls nobody needs in the main session, and it
+  needs an `agent_type` — which is the only condition under which the profile's per-role area table
+  binds at all.
+
+An `analyst` agent was written for this release and deleted before shipping, for the same rule: its
+whole value is stopping to have assumptions corrected, and it cannot.
 
 | Script | Does |
 |---|---|
@@ -40,7 +63,7 @@ Four hooks the harness runs, four skills you invoke by asking, one agent, and ei
 | `questions.mjs <spec> --for "<audience>"` | Prints one audience's open questions, ready to send |
 | `digest.mjs [--since <ref>]` | What landed, under which contract, and what nobody could verify |
 | `build-docs.mjs` | Wraps `docs/*.html` into standalone files under `docs/dist/` |
-| `test-hooks.mjs` | The suite. 97 checks over throwaway fixture repositories |
+| `test-hooks.mjs` | The suite. 97 checks over throwaway fixture repositories, each one a real hook invocation |
 
 ---
 
@@ -142,8 +165,9 @@ that is worth knowing before you rely on one.
   required status checks pass.
 - **It does not decide.** It refuses to detect whether a change needs a feature flag, an end-to-end
   test, or autonomy. Those are judgements a human grants, once, per spec or per contract.
-- **It has no orchestrator.** Nothing picks up a contract, runs a wave, or invokes the reviewer on
-  its own. Every skill is invoked by a person asking for it.
+- **It has no orchestrator.** Nothing picks up a contract, runs a wave, or invokes the reviewer or
+  the implementer on its own. Every skill and every agent is invoked by a person asking for it — and
+  the human gate between analysis and execution is the reason, not an omission.
 - **It has never been measured.** No eval suite exists. Every rule traces to a real failure in a real
   repository, and none of them to a number.
 
