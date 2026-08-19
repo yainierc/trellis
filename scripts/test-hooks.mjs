@@ -737,6 +737,146 @@ It costs a cache TTL.
     r.status === 1 && /does not exist here/.test(r.stdout), r.stdout)
 }
 
+// ── publishing a page for one audience ───────────────────────────────────────
+// The page is the only thing a decision-maker ever sees of this work, so the assertions are about what
+// it must carry and — just as much — what it must not: a settled decision published to the reader least
+// equipped to reopen it is the failure mode, not a missing heading.
+{
+  const PQ = join(ROOT, 'scripts', 'publish-questions.mjs')
+  const dir = repo()
+  const out = join(dir, 'pages')
+  const run = (...a) => spawnSync('node', [PQ, ...a], { cwd: dir, encoding: 'utf8' })
+
+  const spec = (over = {}) => `---
+id: pub
+title: A spec with something to ask
+status: ${over.status || 'approved'}
+owner: ${over.owner || 'APN Leadership'}
+date: 2026-08-19
+supersedes: none
+contracts: []
+feature_flag: none
+flag_reason: >-
+  fixture
+e2e: none
+e2e_reason: none needed
+ceilings: none
+---
+# pub
+
+## Why
+We ship 3 of the 4 options today and \`a\` \`b\` sit next to each other.
+
+## Outcome
+One page per audience.
+
+## Decisions
+| Decision | Position |
+|---|---|
+| Where the flag lives | In the database |
+
+**Considered and refused:** an external flag service, disqualified because changing them needs a deploy.
+
+## Out of scope
+- none
+
+## Open questions
+${over.questions || `### APN Leadership
+
+**Q-01 · Does the marketplace take the booking, or pass a lead to the FBO?**
+
+The brief asserts both.
+
+- **If nobody answers:** the manual-confirmation shape ships and the race is found by a customer.
+- **Detail:** W1 vs W3, and an \`Idempotency-Key\` on the inbound write.
+
+### Architecture
+
+**Q-02 · Does the read model own its own store?**
+
+- **If nobody answers:** it shares, and the first slow query is a product incident.`}
+`
+  const put = (name, body) => { const f = join(dir, name); writeFileSync(f, body); return f }
+  const page = () => readFileSync(join(out, 'pub--apn-leadership.html'), 'utf8')
+
+  let r = run(put('pub.md', spec()), '--for', 'APN Leadership', '--out', out)
+  check('publish-questions: renders and reports no existing page',
+    r.status === 0 && /existing\s+none/.test(r.stdout), r.stdout + r.stderr)
+
+  const html = page()
+  check('publish-questions: the page carries the question and its default',
+    /Does the marketplace take the booking/.test(html) && /If nobody answers/.test(html), '')
+  check('publish-questions: the page names the owner and says it is generated',
+    /APN Leadership/.test(html) && /generated/i.test(html) && /do not edit/i.test(html), '')
+  check('publish-questions: one page carries one audience',
+    !/read model own its own store/.test(html), 'the other audience leaked onto the page')
+
+  // The refusal that makes this feature acceptable at all: a published page is a derived view of the
+  // questions, never of the decisions already taken.
+  check('publish-questions: no settled decision reaches the page',
+    !/Considered and refused/.test(html) && !/external flag service/.test(html) &&
+    !/Where the flag lives/.test(html), 'a decision leaked into the published page')
+
+  // The placeholder collision: a bare digit in prose used to come back as "undefined".
+  check('publish-questions: bare numbers in prose survive rendering',
+    /We ship 3 of the 4 options/.test(html) && !/undefined/.test(html), '')
+  check('publish-questions: adjacent code spans both survive',
+    /<code>a<\/code> <code>b<\/code>/.test(html), '')
+
+  // The stored URL is the whole feature.
+  const URL_A = 'https://claude.ai/code/artifact/aaaa-1111'
+  const URL_B = 'https://claude.ai/code/artifact/bbbb-2222'
+  r = run('pub.md', '--for', 'APN Leadership', '--url')
+  check('publish-questions: --url exits non-zero before anything is recorded', r.status !== 0, r.stdout)
+
+  r = run('pub.md', '--for', 'APN Leadership', '--record', URL_A)
+  check('publish-questions: --record stores the URL', r.status === 0 && r.stdout.includes(URL_A), r.stdout)
+
+  r = run('pub.md', '--for', 'APN Leadership', '--url')
+  check('publish-questions: --url returns exactly what was recorded',
+    r.status === 0 && r.stdout.trim() === URL_A, r.stdout)
+
+  r = run(join(dir, 'pub.md'), '--for', 'APN Leadership', '--out', out)
+  check('publish-questions: a later render reports the existing URL so it can be updated in place',
+    r.stdout.includes(URL_A), r.stdout)
+
+  // Replacing a URL strands whoever holds the old page. It is allowed, and it is not silent.
+  r = run('pub.md', '--for', 'APN Leadership', '--record', URL_B)
+  check('publish-questions: replacing a recorded URL warns that the old page is stranded',
+    r.status === 0 && /warning/.test(r.stdout) && r.stdout.includes(URL_A), r.stdout)
+
+  r = run('pub.md', '--for', 'APN Leadership', '--record', 'not-a-url')
+  check('publish-questions: --record refuses something that is not a URL', r.status === 2, r.stdout)
+
+  // Addressing is exact on purpose: a page for two audiences is a page neither of them owns.
+  r = run('pub.md', '--for', 'a', '--out', out)
+  check('publish-questions: an audience matching more than one exits non-zero',
+    r.status === 1 && /neither of them owns/.test(r.stderr), r.stderr)
+  r = run('pub.md', '--for', 'Finance', '--out', out)
+  check('publish-questions: an unknown audience names the ones that exist',
+    r.status === 1 && /APN Leadership/.test(r.stderr), r.stderr)
+
+  // A question with no stated default is shown as missing rather than quietly rendered as complete.
+  put('nodefault.md', spec({
+    questions: '### APN Leadership\n\n**Q-01 · A question nobody has priced?**\n\nContext.\n\n- **Detail:** x.'
+  }))
+  r = run('nodefault.md', '--for', 'APN Leadership', '--out', out)
+  const nd = readFileSync(join(out, 'pub--apn-leadership.html'), 'utf8')
+  check('publish-questions: a question with no default warns and the page says so',
+    /warning:/.test(r.stdout) && /Not stated/.test(nd), r.stdout)
+
+  put('noowner.md', spec({ owner: '~' }))
+  r = run('noowner.md', '--for', 'APN Leadership', '--out', out)
+  check('publish-questions: a spec with no owner warns, and the page says unassigned',
+    /no owner/.test(r.stdout) && /unassigned/.test(readFileSync(join(out, 'pub--apn-leadership.html'), 'utf8')),
+    r.stdout)
+
+  // The page is read by somebody outside the repository, in whatever theme they use.
+  check('publish-questions: the page is theme-aware and fetches nothing',
+    /prefers-color-scheme/.test(html) && /data-theme="dark"/.test(html) &&
+    !/https?:\/\/fonts\./.test(html) && !/<script/.test(html), '')
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

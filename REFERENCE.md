@@ -15,7 +15,7 @@ one source and this is it.
 
 ## What it actually does
 
-Five hooks the harness runs, five skills you invoke by asking, two agents, and ten scripts.
+Five hooks the harness runs, six skills you invoke by asking, two agents, and eleven scripts.
 
 | Component | Fires when | Effect |
 |---|---|---|
@@ -32,6 +32,7 @@ Five hooks the harness runs, five skills you invoke by asking, two agents, and t
 | `plan` | "split this spec", "who works on what" |
 | `fleet` | "run the fleet", "launch the wave", "start these in parallel" |
 | `contract` | "start a contract to…" |
+| `ask` | "send these questions to business", "publish the open questions" |
 
 | Agent | Role | Invoked with |
 |---|---|---|
@@ -68,10 +69,11 @@ whole value is stopping to have assumptions corrected, and it cannot.
 | `parallel-matrix.mjs <dir> [--write]` | Derives `parallel_safe_with` from `writes` + the transitive dependency graph |
 | `archive.mjs [--dry-run]` | Moves finished contracts and their specs out of the working set |
 | `questions.mjs <spec> --for "<audience>"` | Prints one audience's open questions, ready to send |
+| `publish-questions.mjs <spec> --for "<audience>"` | Renders those questions as a page for a reader who has no repository. `--record <url>` stores where it was published; `--url` reads it back. **It never publishes** — only the `ask` skill can, through the model's own tool |
 | `fleet-plan.mjs <dir> [--record\|--wave]` | What may run right now, why the rest may not, and the recorded base commit |
 | `digest.mjs [--since <ref>]` | What landed, under which contract, and what nobody could verify |
 | `build-docs.mjs` | Wraps `docs/*.html` into standalone files under `docs/dist/` |
-| `test-hooks.mjs` | The suite. 113 checks over throwaway fixture repositories, each one a real hook invocation |
+| `test-hooks.mjs` | The suite. 148 checks over throwaway fixture repositories, each one a real hook invocation |
 
 ---
 
@@ -88,6 +90,10 @@ paths that repository's own `.trellis/profile.yml` declares.
 │   │                        for repositories with no git. The branch does this otherwise
 │   ├── wave.json            gitignored. The base commit a wave branched from, and its contracts.
 │   │                        §7 requires it recorded; recorded means verifiable, not committed
+│   ├── published.json       **committed.** Which audience's questions were published where. Without
+│   │                        it a second publish mints a second link, and whoever holds the first one
+│   │                        is commenting where nothing reads
+│   ├── pages/               gitignored. Generated question pages, rebuilt from the spec every time
 │   └── worktrees/           gitignored. One per contract in a wave, all from that base commit
 ├── docs/
 │   ├── specs/               what to build. `_`-prefixed folders are skipped
@@ -105,13 +111,16 @@ anything the profile does not name.
 
 ### Everything the plugin writes to your disk
 
-Exhaustively — four things, and no others:
+Exhaustively — six things, and no others:
 
 1. **A contract's `status:` line.** One line, never the body, so a gate cannot quietly amend the
    criteria it just failed (`core.md` §2). Written by the Stop gate on failure.
 2. **A contract's `parallel_safe_with:` line**, and only when you run `parallel-matrix.mjs --write`.
 3. **File moves**, when you run `archive.mjs` without `--dry-run`. It moves; it never deletes.
 4. **`docs/dist/*.html`**, when you run `build-docs.mjs`.
+5. **`.trellis/pages/<spec>--<audience>.html`**, when you render a question page. Generated, and
+   overwritten on every render — never edit one.
+6. **`.trellis/published.json`**, when you run `publish-questions.mjs --record`. A URL and a date.
 
 The hooks themselves write nothing. They answer allow or deny.
 

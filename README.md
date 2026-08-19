@@ -87,6 +87,7 @@ real repository rather than to a preference.
 | `scripts/lib/autonomy.mjs` — graduated autonomy, granted by a human and proved by the platform | ✅ |
 | `scripts/archive.mjs` — finished work leaves the working set, without breaking the graph | ✅ |
 | `scripts/validate-spec.mjs` · `scripts/questions.mjs` — a spec needs an owner, and its questions an address | ✅ |
+| `skills/ask` · `scripts/publish-questions.mjs` — those questions as a page the decider reads in their own tool, with the URL kept so a republish updates it | ✅ |
 | `templates/ADR.md` · `scripts/validate-adr.mjs` — a decision record's shape, and superseding checked from both sides | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |

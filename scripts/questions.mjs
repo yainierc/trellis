@@ -12,10 +12,13 @@
 // It prints. It never sends, never edits, and never writes into a spec — an answer is carried back
 // by a human, deliberately, because a spec that changed itself under a running contract is exactly
 // what rules/core.md §2 exists to prevent.
+//
+// For the same questions as a page a decision-maker can read in their own tool, see
+// publish-questions.mjs. Both read the spec through scripts/lib/questions.mjs, so they cannot
+// disagree about what was asked.
 
-import { readFileSync } from 'node:fs'
 import { basename } from 'node:path'
-import { parseFrontmatter, section } from './lib/frontmatter.mjs'
+import { readSpec, matchAudience } from './lib/questions.mjs'
 
 const args = process.argv.slice(2)
 const file = args.find(a => !a.startsWith('--'))
@@ -26,38 +29,25 @@ const audience = forIdx === -1 ? null : args[forIdx + 1]
 if (!file) { console.error('usage: questions.mjs <spec.md> [--list] [--for "<audience>"]'); process.exit(2) }
 if (forIdx !== -1 && !audience) { console.error('--for needs an audience'); process.exit(2) }
 
-const text = readFileSync(file, 'utf8')
-const fm = parseFrontmatter(text)
-if (fm.error) { console.error(`${file}: ${fm.error}`); process.exit(2) }
+const spec = readSpec(file)
+if (spec.error) { console.error(`${file}: ${spec.error}`); process.exit(2) }
 
-const oq = section(fm.body, '## Open questions')
-if (!oq) { console.error(`${file}: no "## Open questions" section`); process.exit(2) }
-
-// Split on audience headings. Anything before the first one is preamble, not a question.
-const parts = oq.split(/^###\s+(.+?)\s*$/gm)
-const groups = []
-for (let i = 1; i < parts.length; i += 2) {
-  groups.push({ audience: parts[i].trim(), body: (parts[i + 1] || '').trim() })
-}
-
+const groups = spec.groups
 if (!groups.length) {
   console.error(`${file}: open questions are not grouped by audience — nothing to address`)
   process.exit(1)
 }
 
 if (list) {
-  console.log(`${basename(file)} — ${fm.data.title || fm.data.id}`)
-  console.log(`owner: ${fm.data.owner ?? '~ (unset)'}    status: ${fm.data.status}\n`)
+  console.log(`${basename(file)} — ${spec.data.title || spec.data.id}`)
+  console.log(`owner: ${spec.data.owner ?? '~ (unset)'}    status: ${spec.data.status}\n`)
   for (const g of groups) {
-    const n = (g.body.match(/^\*\*.+?·.+?\*\*\s*$/gm) || []).length
-    console.log(`  ${String(n).padStart(2)}  ${g.audience}`)
+    console.log(`  ${String(g.questions.length).padStart(2)}  ${g.audience}`)
   }
   process.exit(0)
 }
 
-const wanted = audience
-  ? groups.filter(g => g.audience.toLowerCase().includes(audience.toLowerCase()))
-  : groups
+const wanted = audience ? matchAudience(groups, audience) : groups
 
 if (!wanted.length) {
   console.error(`no audience matching "${audience}". Try --list.`)
@@ -66,9 +56,9 @@ if (!wanted.length) {
 
 // The header exists so the reader knows what they are being asked about and by when it matters,
 // without needing the repository the spec lives in.
-console.log(`# ${fm.data.title || fm.data.id}`)
+console.log(`# ${spec.data.title || spec.data.id}`)
 console.log(`\nThese are the decisions we cannot make for you. Everything else is already underway.`)
-console.log(`\nSpec: ${basename(file)} · status ${fm.data.status} · owner ${fm.data.owner ?? 'unassigned'}`)
+console.log(`\nSpec: ${basename(file)} · status ${spec.data.status} · owner ${spec.data.owner ?? 'unassigned'}`)
 
 for (const g of wanted) {
   console.log(`\n---\n\n## ${g.audience}\n`)

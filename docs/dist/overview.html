@@ -364,7 +364,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.14.0 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.15.0 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -1040,12 +1040,14 @@
       <div class="note">
         <span class="tag">What installing it does today</span>
         <p>
-          The plugin declares <strong>four hooks, five skills and two agents</strong> — verified with
+          The plugin declares <strong>five hooks, six skills and two agents</strong> — verified with
           <code>claude plugin details trellis@skills-dir</code>. The hooks enforce: write boundary, git
-          boundary, Stop gate and per-file lint. The skills are what you invoke by asking —
-          <code>init</code> adopts a repository, <code>spec</code> turns documents into a spec,
-          <code>plan</code> splits it per person, <code>contract</code> starts one piece of work, and
-          <code>fleet</code> runs several at once. The agents are the two roles that must not converse:
+          boundary, Stop gate, per-file lint, and one line of context at session start. The skills are
+          what you invoke by asking &mdash; <code>init</code> adopts a repository, <code>spec</code>
+          turns documents into a spec, <code>plan</code> splits it per person, <code>contract</code>
+          starts one piece of work, <code>fleet</code> runs several at once, and <code>ask</code> puts a
+          spec's open questions in front of whoever answers them. The agents are the two roles that must
+          not converse:
           a reviewer that never reads the author's report, and an implementer that cannot declare itself
           done. Everything is inert in any repository without a <code>.trellis/profile.yml</code>, so
           installing it cannot disturb work that has not opted in.
@@ -1301,7 +1303,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.14.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
+      Trellis v0.15.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>
