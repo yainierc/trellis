@@ -63,6 +63,17 @@ gates:
   pre_pr:
     - review                   # adversarial reviewer, zero must-fix findings
     - test_slow
+  # Who knows the business well enough to say "that works, but functionally it is wrong". ADVISORY
+  # by default: it does not block a pull request. Domain reviewers usually see the product on a
+  # staging site rather than in a diff, and a blocking gate that waits on somebody travelling stops
+  # the work without catching anything a machine could not.
+  #
+  # It is listed here anyway, because a reviewer nobody named is a reviewer nobody asks. Per area:
+  #   domain_review:
+  #     web/listings: "Iver + Jessica (BA Group huddle)"
+  #     billing: "Finance"
+  # An area with no reviewer passes without one — stated, not silently.
+  domain_review: none
 
 concurrency:
   max_parallel: 4

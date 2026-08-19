@@ -23,7 +23,29 @@ If the change spans a frontend and a backend, or otherwise needs more than one s
 **it is more than one contract**, and the cross-cutting parts belong to a spec. See `rules/core.md`
 §12. Do not fold two layers into one contract to avoid writing a spec.
 
-### 2. Copy the template and fill it
+### 2. Propose the scope. Do not ask for it.
+
+**The person driving may not be able to name a file path, and does not need to.** Trellis is
+installed for domain experts as well as engineers; a skill that opens by demanding `writes` entries
+is unusable by half the people it was installed for, and they will work around it rather than with it.
+
+So: read the repository, work out which paths the change touches, and **state it back as a promise
+in their terms** before writing anything.
+
+> "I'll be working only in the listings page and its filters. If the work turns out to need anything
+> outside that, **I stop and ask you** rather than widening it on my own. Does that match what you
+> expect?"
+
+That sentence is checkable by anybody. A path list is not, and demanding one teaches the wrong
+lesson — that scope is bookkeeping rather than the promise it actually is.
+
+Show the paths too, plainly and after the promise, for whoever wants them. Never make understanding
+them the price of starting.
+
+If the answer is "no, it should also touch X", widen the proposal **now** — before the branch exists
+is the only moment widening is free.
+
+### 3. Copy the template and fill it
 
 `${CLAUDE_PLUGIN_ROOT}/templates/CONTRACT.md` → the repo's contracts path from the profile.
 
@@ -48,7 +70,7 @@ Get these right; the rest is prose:
 - **`## Out of scope`** — name what a reader would reasonably expect and will not get. `none` is a
   valid answer; empty is not.
 
-### 3. Validate before branching
+### 4. Validate before branching
 
 ```
 node "${CLAUDE_PLUGIN_ROOT}/scripts/validate-contract.mjs" <contracts path> --all
@@ -61,7 +83,7 @@ detected overlap always wins over the author's assertion.
 Warnings are worth reading rather than clearing. A bare-directory `writes` warning is either a real
 defect or a deliberate choice, and if it is deliberate, say so in the contract.
 
-### 4. Ask how far this contract may carry itself — before the branch
+### 5. Ask how far this contract may carry itself — before the branch
 
 **Ask the human, every time, and do not answer it yourself.** This is the last moment it is cheap:
 the contract is written and validated, so they can see `writes` and `done_when` before deciding, and
@@ -93,7 +115,7 @@ Never propose autonomous for a schema migration, a change to a shared interface,
 weakens a security or isolation control, or a feature-flag flip. Those stay human under §4 whatever
 the profile says.
 
-### 5. Branch, which is what arms the guardrails
+### 6. Branch, which is what arms the guardrails
 
 Build the branch name from the profile's `branch_pattern` and the contract id:
 
@@ -117,7 +139,7 @@ identically without a repository. Delete it when the contract is done, or the bo
 enforcing a contract nobody is working on. Note that `autonomy: autonomous` is unreachable in this
 case by construction: there is no remote, so there is no platform that could refuse a merge.
 
-### 6. Set `status: active` and work
+### 7. Set `status: active` and work
 
 Change `status` from `pending` to `active` in the contract. That single field is the only part of the
 contract an orchestrator may write.
@@ -133,7 +155,7 @@ From here on, three things are enforced mechanically and you should expect them:
   stop there. On an `autonomous` one those two are allowed, and if the push is refused the message
   names the precondition that failed.
 
-### 7. Let the gate close it
+### 8. Let the gate close it
 
 Do not self-certify. When the work is done, the Stop gate re-runs every criterion itself and either
 confirms it or marks the contract `blocked` and tells the human what failed. Report faithfully in the
@@ -155,10 +177,11 @@ every session in the repo.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Denied mid-flight for a file the work obviously needs | `writes` was written before the change was understood | Read first, then declare. Widening mid-flight is not available |
+| Denied mid-flight for a file the work obviously needs | `writes` was written before the change was understood | Read first, then propose. Widening mid-flight is not available |
+| A domain expert could not start because the skill asked for file paths | Step 2 was skipped | Propose the scope as a promise. The paths are your problem, not theirs |
 | A whole backlog runs one contract at a time | `writes` names a bare directory | Narrow to files or feature folders |
 | The gate reports `NOT VERIFIED` and blocks | A `done_when` criterion has no runnable command | Write commands, not intentions |
-| Guardrails silent through the whole task | Never branched, or the branch does not match `branch_pattern` | Step 5 is not optional |
+| Guardrails silent through the whole task | Never branched, or the branch does not match `branch_pattern` | Step 6 is not optional |
 | Contract quietly edited to make a criterion pass | Executor amended its own rubric | Categorical defect. Revert and raise it |
 | Push refused on an autonomous contract | A precondition does not hold — usually no branch protection | Read the refusal; it names the one that failed |
-| Autonomy chosen for a migration or a shared interface | The question was asked without the exclusions | Step 4 lists them; they are not negotiable |
+| Autonomy chosen for a migration or a shared interface | The question was asked without the exclusions | Step 5 lists them; they are not negotiable |

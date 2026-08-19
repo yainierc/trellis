@@ -175,7 +175,7 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.7.0</div>
+    <div class="eyebrow">Trellis · v0.7.1</div>
     <h1>Quickstart</h1>
     <p class="deck">
       Two commands to install, then one sentence per thing you want. Claude Code does the setup —
@@ -404,6 +404,39 @@ claude plugin install trellis@gmstek</pre>
     </div>
   </section>
 
+  <!-- 5b · WHO CHECKS -->
+  <section>
+    <h2><span class="n">·</span> Who checks the work</h2>
+    <p class="sub">
+      The question a domain expert asks first, and the honest answer: <strong>what protects you is
+      not your review — it is everything that runs before you ever see it.</strong>
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>When</th><th>What happens</th><th>Who</th></tr></thead>
+        <tbody>
+          <tr><td>While the work happens</td><td>Anything outside the agreed scope is refused, not negotiated. Pushing, merging and deploying are refused outright</td><td>Nobody — mechanical</td></tr>
+          <tr><td>Before the session closes</td><td>Build, lint and tests are re-run from scratch. Not read off a summary — actually executed. A failure marks the work <code>blocked</code> and says so</td><td>Nobody — mechanical</td></tr>
+          <tr><td>Before a pull request</td><td>A second agent reviews the result with instructions to <em>refute</em> it, and never sees the first one's report. Only the files count as evidence</td><td>An independent reviewer</td></tr>
+          <tr><td>Before anything merges</td><td>Somebody presses the button. Always</td><td>You, or whoever owns the repo</td></tr>
+          <tr><td>Whenever you like</td><td>Look at the running product and say "that works, but functionally it is wrong"</td><td><strong>You</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note ok">
+      <span class="tag">Why your review does not block</span>
+      <p>
+        Deliberately. A review that blocks stops the work when the reviewer is travelling, and
+        catches nothing a machine could not have caught earlier and cheaper. Yours is the one that
+        catches what no machine can — that the thing built is not the thing wanted — and that is
+        easiest to see on the running product, not in a diff.
+      </p>
+      <p>
+        Say it whenever you see it. It becomes a change, not a rejection.
+      </p>
+    </div>
+  </section>
+
   <!-- 6 · REFERENCE -->
   <section>
     <h2><span class="n">6</span> Reference</h2>
@@ -453,7 +486,7 @@ git checkout -b task/MY-T-01-short-slug</pre>
   </section>
 
   <footer>
-    Trellis v0.7.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    Trellis v0.7.1 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
     The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>
