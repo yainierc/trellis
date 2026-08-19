@@ -175,7 +175,7 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.16.0</div>
+    <div class="eyebrow">Trellis · v0.16.1</div>
     <h1>Quickstart</h1>
     <p class="deck">
       Two commands to install, then one sentence per thing you want. Claude Code does the setup —
@@ -236,6 +236,19 @@ claude plugin install trellis@gmstek</pre>
         Where publishing is not available — an organisation that denies it, a session with no account to
         host it — the same command prints the questions and <strong>says that it did not publish</strong>.
         It never reports a page that does not exist.
+      </p>
+      <p>
+        The answers come back the same way. They arrive as <strong>comments on the page</strong>, and
+        saying <em>"did anyone answer?"</em> collects them: each one is matched to its question, drafted
+        with the name of whoever answered and the date, and <strong>shown to you before anything is
+        written</strong>. You approve the wording, and only then does it land on the spec.
+        A comment is not the record; the spec is.
+      </p>
+      <p>
+        The tool that writes it <strong>can only insert</strong>. After it adds the answer it removes it
+        again and compares the file with what it started from, byte for byte — if a question was
+        reworded, a heading tidied or a line dropped, the write is abandoned and nothing is saved. That
+        is why a tool is allowed near a requirement at all.
       </p>
     </div>
     <p>
@@ -513,7 +526,7 @@ git checkout -b task/MY-T-01-short-slug</pre>
   </section>
 
   <footer>
-    Trellis v0.16.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    Trellis v0.16.1 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
     The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>

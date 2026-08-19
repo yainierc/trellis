@@ -356,7 +356,7 @@
 
 <div class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="eyebrow">Claude Code plugin · v0.16.0 · MIT</div>
+    <div class="eyebrow">Claude Code plugin · v0.16.1 · MIT</div>
     <h1>Trellis</h1>
     <p class="deck">
       A trellis guides growth without doing the growing. Trellis does the same for an AI that writes
@@ -1038,7 +1038,9 @@
           what you invoke by asking &mdash; <code>init</code> adopts a repository, <code>spec</code>
           turns documents into a spec, <code>plan</code> splits it per person, <code>contract</code>
           starts one piece of work, <code>fleet</code> runs several at once, and <code>ask</code> puts a
-          spec's open questions in front of whoever answers them. The agents are the two roles that must
+          spec's open questions in front of whoever answers them &mdash; and collects their answers back
+          onto the spec, signed and dated, through a tool that can insert an answer and change nothing
+          else. The agents are the two roles that must
           not converse:
           a reviewer that never reads the author's report, and an implementer that cannot declare itself
           done. Everything is inert in any repository without a <code>.trellis/profile.yml</code>, so
@@ -1295,7 +1297,7 @@ cp $TRELLIS/templates/project-profile.yml .trellis/profile.yml</pre>
 
   <footer class="col">
     <p>
-      Trellis v0.16.0 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
+      Trellis v0.16.1 · a Claude Code plugin · MIT · by Yainier Caraballo.<br>
       Every rule in <code>rules/core.md</code> traces to a real failure in a real repository, not to
       a preference.
     </p>
