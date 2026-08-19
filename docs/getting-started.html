@@ -167,7 +167,7 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Trellis · v0.15.0</div>
+    <div class="eyebrow">Trellis · v0.15.1</div>
     <h1>Quickstart</h1>
     <p class="deck">
       Two commands to install, then one sentence per thing you want. Claude Code does the setup —
@@ -211,6 +211,23 @@ claude plugin install trellis@gmstek</pre>
         <strong>decided</strong>, what it <strong>assumed</strong> on your behalf, and what is
         <strong>missing</strong> strictly apart. That separation is the point: an assumption written
         in as a requirement is what nobody catches until it is expensive.
+      </p>
+    </div>
+    <div class="note ok">
+      <span class="tag">The questions you cannot answer yourself</span>
+      <p>
+        A spec always ends with decisions that are somebody else's to make, grouped by
+        <strong>who answers them</strong>, each one saying <strong>what ships if nobody does</strong> —
+        which is the line that makes silence expensive instead of merely open. Say
+        <em>"send these questions to the executives"</em> and <code>/trellis:ask</code> renders that one
+        audience's questions as a page they can read and comment on in Claude, without opening a
+        repository or learning anything new. The link is stored, so answering a second round updates the
+        same page rather than stranding whoever had the first one open.
+      </p>
+      <p>
+        Where publishing is not available — an organisation that denies it, a session with no account to
+        host it — the same command prints the questions and <strong>says that it did not publish</strong>.
+        It never reports a page that does not exist.
       </p>
     </div>
     <p>
@@ -488,7 +505,7 @@ git checkout -b task/MY-T-01-short-slug</pre>
   </section>
 
   <footer>
-    Trellis v0.15.0 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
+    Trellis v0.15.1 · MIT · <a href="https://github.com/yainierc/trellis">github.com/yainierc/trellis</a><br>
     The long version — what a contract is, why the gates exist, the enforcement ladder — is
     <code>docs/overview.html</code>.
   </footer>
