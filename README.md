@@ -48,7 +48,7 @@ trellis/
 ├── hooks/        boundaries the model cannot cross
 ├── schemas/      per-artifact rules + validators
 ├── scripts/      the checks hooks and skills call
-├── templates/    CONTRACT.md · project-profile.yml · SPEC.md   (ADR.md still missing)
+├── templates/    CONTRACT.md · project-profile.yml · SPEC.md · ADR.md
 └── profiles/     per-stack command sets
 ```
 
@@ -87,6 +87,7 @@ real repository rather than to a preference.
 | `scripts/lib/autonomy.mjs` — graduated autonomy, granted by a human and proved by the platform | ✅ |
 | `scripts/archive.mjs` — finished work leaves the working set, without breaking the graph | ✅ |
 | `scripts/validate-spec.mjs` · `scripts/questions.mjs` — a spec needs an owner, and its questions an address | ✅ |
+| `templates/ADR.md` · `scripts/validate-adr.mjs` — a decision record's shape, and superseding checked from both sides | ✅ |
 | `hooks/` — write boundary, git boundary, Stop gate, per-file lint | ✅ |
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/reviewer` — adversarial review, artifacts only, never the author's report | ✅ |

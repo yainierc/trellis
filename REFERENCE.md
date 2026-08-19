@@ -15,7 +15,7 @@ one source and this is it.
 
 ## What it actually does
 
-Five hooks the harness runs, five skills you invoke by asking, two agents, and nine scripts.
+Five hooks the harness runs, five skills you invoke by asking, two agents, and ten scripts.
 
 | Component | Fires when | Effect |
 |---|---|---|
@@ -64,6 +64,7 @@ whole value is stopping to have assumptions corrected, and it cannot.
 |---|---|
 | `validate-contract.mjs <dir> --all` | Structure, enums, dependency cycles, dangling refs, `writes` overlaps |
 | `validate-spec.mjs <dir> --all` | Structure, and refuses an approved spec with no `owner` |
+| `validate-adr.mjs <dir> --all` | Structure, and refuses a half-done supersede in either direction |
 | `parallel-matrix.mjs <dir> [--write]` | Derives `parallel_safe_with` from `writes` + the transitive dependency graph |
 | `archive.mjs [--dry-run]` | Moves finished contracts and their specs out of the working set |
 | `questions.mjs <spec> --for "<audience>"` | Prints one audience's open questions, ready to send |
@@ -93,7 +94,8 @@ paths that repository's own `.trellis/profile.yml` declares.
 │   │   └── archive/<year>/   specs whose whole wave finished
 │   ├── contracts/           units of work
 │   │   └── archive/<year>/   finished contracts. Still resolvable by `depends_on`
-│   ├── adr/                 decision records. Never archived — superseded instead (§9)
+│   ├── adr/                 decision records, `NNNN-slug.md`. Never archived — superseded instead (§9),
+│   │                        and superseding is checked from both sides
 │   └── runbooks/            created by `init`. NOTHING IN THE PLUGIN USES IT (see below)
 └── tmp/                     gitignored scratch. Never referenced from a committed file
 ```
@@ -146,6 +148,7 @@ Graduated autonomy inverts that: if a precondition cannot be *verified*, the ans
 | `commands.build` · `test_fast` · `lint` | the Stop gate |
 | `commands.format_file` · `lint_file` | the PostToolUse hook |
 | `gates.stop` | the Stop gate, which gates run |
+| `paths.decisions` | `validate-adr.mjs`, and deliberately not `archive.mjs` — §9 supersedes rather than files away |
 | `concurrency.max_parallel` · `ceilings` | `fleet-plan.mjs` — the wave size, and the ceiling warning |
 | `git.worktree_root` | `/trellis:fleet` — one worktree per contract |
 | `agents` | the write boundary, per-role areas. Binds a subagent by `agent_type`, a person by `git config trellis.role` |
@@ -157,7 +160,7 @@ Honesty is cheaper than a surprise. These are in the template and **nothing read
 | Field | Intended for | State |
 |---|---|---|
 | `paths.runbooks` | operational procedures | Location convention only. No template, no validator |
-| `paths.decisions` | ADRs | Convention. `archive.mjs` deliberately does not touch ADRs |
+
 | `git.pr_target` | landing a whole spec as one PR | Nothing opens PRs yet |
 
 | `commands.format_check` · `typecheck` | extra gates | Not in `gates.stop`'s vocabulary |

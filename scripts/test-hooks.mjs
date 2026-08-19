@@ -674,6 +674,69 @@ The brief asserts both.
     !/docs\/reference\.html/.test(out.additionalContext || ''), out.additionalContext)
 }
 
+// ── decision records: superseding cannot be half-done ────────────────────────
+{
+  const VA = join(ROOT, 'scripts', 'validate-adr.mjs')
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trellis-adr-')))
+  cleanup.push(dir)
+  const run = (...a) => spawnSync('node', [VA, ...a], { cwd: dir, encoding: 'utf8' })
+
+  const adr = (n, o = {}) => `# ADR ${n} — A decision stated as a statement
+
+- **Status:** ${o.status || 'accepted'}
+- **Date:** 2026-08-19
+- **Supersedes:** ${o.supersedes || 'none'}
+
+## Context
+The forcing constraint.
+
+## Decision
+The position, in the present tense.
+
+## Considered and refused
+${o.refused === '' ? '' : (o.refused || 'The obvious alternative — disqualified because it needs a deploy to change.')}
+
+## Consequences
+It costs a cache TTL.
+
+**Accepted is not validated.** Owes the first incident.
+`
+  const put = (name, body) => writeFileSync(join(dir, name), body)
+
+  put('0001-first.md', adr('0001'))
+  let r = run('0001-first.md')
+  check('adr: a record on the template shape passes', r.status === 0, r.stdout)
+
+  // §9's point: an accepted record with no refusals keeps the outcome and loses the reasoning
+  put('0002-hollow.md', adr('0002', { refused: '' }))
+  r = run('0002-hollow.md')
+  check('adr: accepted with no refusals is an ERROR', r.status === 1 && /Considered and refused` is empty/.test(r.stdout), r.stdout)
+
+  // the dangerous half — two records both claiming to be current
+  put('0002-hollow.md', adr('0002', { supersedes: 'ADR 0001' }))
+  r = run('.', '--all')
+  check('adr: superseding a record still marked accepted is an ERROR',
+    r.status === 1 && /still\s+"accepted"/.test(r.stdout), r.stdout)
+  check('adr: and it says why that is the dangerous half', /will be cited/.test(r.stdout), r.stdout)
+
+  // both halves done: no complaint
+  put('0001-first.md', adr('0001', { status: 'superseded' }))
+  r = run('.', '--all')
+  check('adr: both halves marked passes', r.status === 0 && /claimed from both sides/.test(r.stdout), r.stdout)
+
+  // the other half — withdrawn with no successor
+  put('0003-orphan.md', adr('0003', { status: 'superseded' }))
+  r = run('.', '--all')
+  check('adr: superseded with nothing replacing it is an ERROR',
+    r.status === 1 && /no record claims to replace it/.test(r.stdout), r.stdout)
+
+  // a supersede pointing nowhere
+  put('0003-orphan.md', adr('0003', { supersedes: 'ADR 0099' }))
+  r = run('.', '--all')
+  check('adr: superseding a record that does not exist is an ERROR',
+    r.status === 1 && /does not exist here/.test(r.stdout), r.stdout)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }
