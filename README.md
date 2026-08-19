@@ -83,6 +83,7 @@ real repository rather than to a preference.
 | `scripts/lib/` — the shared readers the hooks and the validator both use | ✅ |
 | `agents/reviewer` — adversarial review, artifacts only, never the author's report | ✅ |
 | `scripts/digest.mjs` — what landed, under which contract, and what nobody could verify | ✅ |
+| `skills/plan` · `scripts/parallel-matrix.mjs` — split a spec per person; parallelism derived, not asserted | ✅ |
 | `agents/` — analyst, implementer, specialists | next |
 | `skills/` — spec, task-start, task-run, task-verify, task-review, task-complete, fleet, index-sync | after |
 | `profiles/` — .NET + Angular, Bicep/Azure | after |

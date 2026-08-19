@@ -487,6 +487,74 @@ The brief asserts both.
   check('digest: an empty range says so', /Nothing in this range/.test(r.stdout), r.stdout)
 }
 
+// ── per-person areas, and a derived parallel matrix ──────────────────────────
+{
+  const PM = join(ROOT, 'scripts', 'parallel-matrix.mjs')
+  const VC = join(ROOT, 'scripts', 'validate-contract.mjs')
+
+  // ── the agent area table ──
+  // FIX-T-01 declares writes: src/allowed/ and docs/notes.md. Give "implementer" only the first.
+  const dir = repo()
+  const prof = join(dir, '.trellis', 'profile.yml')
+  writeFileSync(prof, readFileSync(prof, 'utf8') + 'agents:\n  implementer:\n    - src/allowed/\n')
+
+  const withAgent = (cwd, path, agent_type) =>
+    ({ hook_event_name: 'PreToolUse', tool_name: 'Write', cwd, agent_id: 'a1', agent_type, tool_input: { file_path: path } })
+
+  let r = fire('write-boundary.mjs', withAgent(dir, join(dir, 'src/allowed/x.ts'), 'implementer'))
+  check('areas: inside both writes and the role area is allowed', decision(r) === null, `${decision(r)}: ${reason(r)}`)
+
+  r = fire('write-boundary.mjs', withAgent(dir, join(dir, 'docs/notes.md'), 'implementer'))
+  check('areas: inside writes but outside the role area is denied', decision(r) === 'deny', `got ${decision(r)}`)
+  check('areas: the refusal names what the role owns', /Owned: src\/allowed\//.test(reason(r)), reason(r))
+
+  r = fire('write-boundary.mjs', withAgent(dir, join(dir, 'docs/notes.md'), 'stranger'))
+  check('areas: an unlisted agent type writes nothing', decision(r) === 'deny', `got ${decision(r)}`)
+  check('areas: it says why', /not listed/.test(reason(r)), reason(r))
+
+  // the human session carries no agent_type and must be untouched by the table
+  r = fire('write-boundary.mjs', write(dir, join(dir, 'docs/notes.md')))
+  check('areas: a session with no agent_type is not bound by the table', decision(r) === null, `${decision(r)}: ${reason(r)}`)
+
+  // ── the derived matrix ──
+  const m = repo()
+  const c = (id, writes, deps) => contract(id, '- [ ] `true`')
+    .replace(/^id: FIX-T-01$/m, `id: ${id}`)
+    .replace(/^status: active$/m, 'status: pending')
+    .replace(/^depends_on: \[\]$/m, `depends_on: ${JSON.stringify(deps || [])}`)
+    .replace(/^parallel_safe_with: \[\]$/m, 'parallel_safe_with: [A-T-01, B-T-01, C-T-01]')
+    .replace(/writes:\n  - src\/allowed\/\n  - docs\/notes\.md/, `writes:\n${writes.map(w => `  - ${w}`).join('\n')}`)
+  writeFileSync(join(m, 'docs/contracts/A-T-01.md'), c('A-T-01', ['src/a/'], ['C-T-01']))
+  writeFileSync(join(m, 'docs/contracts/B-T-01.md'), c('B-T-01', ['src/b/'], []))
+  writeFileSync(join(m, 'docs/contracts/C-T-01.md'), c('C-T-01', ['src/c/'], ['B-T-01']))
+  // D shares nothing and depends on nothing, so it is genuinely parallel-safe with all three —
+  // without it every derived list is empty and the test proves only that nothing is ever safe.
+  writeFileSync(join(m, 'docs/contracts/D-T-01.md'), c('D-T-01', ['src/d/'], []))
+
+  let p = spawnSync('node', [PM, 'docs/contracts'], { cwd: m, encoding: 'utf8' })
+  check('parallel-matrix: an overclaim fails the run', p.status === 1, p.stdout)
+  check('parallel-matrix: it names the unsafe claim', /CLAIMED BUT UNSAFE/.test(p.stdout), p.stdout)
+  // A depends on C, C depends on B ⇒ A and B are transitively related despite disjoint writes.
+  // Read A's derived line directly rather than splitting the report — a fragile parse here would
+  // pass on a broken derivation.
+  const derivedFor = (id, out) => {
+    const lines = out.split('\n')
+    const i = lines.findIndex(l => l.trim() === id)
+    return i === -1 ? '' : (lines[i + 1] || '')
+  }
+  const aDerived = derivedFor('A-T-01', p.stdout)
+  check('parallel-matrix: a transitive ancestor is not parallel-safe', !/B-T-01/.test(aDerived), aDerived)
+  check('parallel-matrix: an unrelated contract with disjoint writes IS safe', /D-T-01/.test(aDerived), aDerived)
+
+  p = spawnSync('node', [PM, 'docs/contracts', '--write'], { cwd: m, encoding: 'utf8' })
+  check('parallel-matrix: --write exits 0', p.status === 0, p.stdout)
+  p = spawnSync('node', [PM, 'docs/contracts'], { cwd: m, encoding: 'utf8' })
+  check('parallel-matrix: after writing, declaration matches derivation',
+    /Every declaration matches/.test(p.stdout), p.stdout)
+  p = spawnSync('node', [VC, 'docs/contracts', '--all'], { cwd: m, encoding: 'utf8' })
+  check('parallel-matrix: the validator agrees with what was written', p.status === 0, p.stdout)
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 for (const d of cleanup) { try { rmSync(d, { recursive: true, force: true }) } catch {} }

@@ -95,7 +95,14 @@ rules:
   local: .claude/rules
 
 agents:
-  # Write-path boundaries, enforced by the PreToolUse hook. An agent that is not listed may write
-  # nothing. Keep this table narrower than you think you need.
+  # Which areas each role owns — "which areas Iver works on, which areas Jess works on". Allocated in
+  # planning so two people never write the same files, and enforced by the write-boundary hook on top
+  # of the contract's own `writes`.
+  #
+  # It binds only when the harness reports an agent type, which it does for subagents and not for a
+  # human session. So this constrains delegated work, not the person at the keyboard.
+  #   listed with paths  → may write only inside them, and only inside the contract's writes
+  #   listed as []       → no restriction beyond the contract
+  #   not listed at all  → writes nothing
   implementer: []
   reviewer: []

@@ -48,12 +48,44 @@ guard(async () => {
 
   // §3, second half — stay inside the declared writes.
   const repoPath = toRepoPath(root, abs)
-  if (active.writes.some(entry => covers(entry, repoPath))) return allow()
+  if (!active.writes.some(entry => covers(entry, repoPath))) {
+    return deny(
+      `${repoPath} is not in the \`writes\` list of ${active.id}.\n` +
+      `Declared: ${active.writes.join(', ') || '(none)'}\n` +
+      'A real problem found outside scope goes to a follow-up note and one line in the report. ' +
+      'Scope is never widened mid-flight (rules/core.md §3).'
+    )
+  }
 
-  return deny(
-    `${repoPath} is not in the \`writes\` list of ${active.id}.\n` +
-    `Declared: ${active.writes.join(', ') || '(none)'}\n` +
-    'A real problem found outside scope goes to a follow-up note and one line in the report. ' +
-    'Scope is never widened mid-flight (rules/core.md §3).'
-  )
+  // ── the per-agent area table ───────────────────────────────────────────────
+  // "We know which areas Iver is going to be working on, Jess is going to be working on, which areas
+  // our developer is going to be working on." The profile has carried that table since the first
+  // commit and claimed the hook enforced it; it did not, which made it a note rather than a boundary.
+  //
+  // It binds only when the harness reports an agent type — a human session carries none, and a rule
+  // that blocked those would make the table unusable the day it is first filled in.
+  const agentType = event.agent_type
+  const table = profile.agents
+  if (agentType && table && Object.keys(table).length) {
+    if (!(agentType in table)) {
+      return deny(
+        `agent type "${agentType}" is not listed in the profile's \`agents:\` table, and an agent ` +
+        'that is not listed writes nothing. Add it with the paths it owns, or run this work as a ' +
+        'listed role.'
+      )
+    }
+    const areas = table[agentType]
+    // An empty list means "listed, no further restriction" — `implementer: []` is the template's own
+    // default, and reading it as "nothing" would deny every write on the day the table is created.
+    if (Array.isArray(areas) && areas.length && !areas.some(a => covers(a, repoPath))) {
+      return deny(
+        `${repoPath} is inside ${active.id}'s \`writes\` but outside the areas "${agentType}" owns.\n` +
+        `Owned: ${areas.join(', ')}\n` +
+        'Areas are allocated per person in planning so two people do not write the same files. ' +
+        'Changing them is a planning decision, not a mid-flight one.'
+      )
+    }
+  }
+
+  return allow()
 })
