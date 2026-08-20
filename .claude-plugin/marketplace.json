@@ -1,15 +1,9 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "gmstek",
-  "description": "Claude Code plugins from GMSTEK.",
+  "description": "MOVED — Trellis now lives at X-1FBO/GitHub_X1_Trellis. This marketplace is intentionally empty.",
   "owner": {
     "name": "GMSTEK"
   },
-  "plugins": [
-    {
-      "name": "trellis",
-      "source": "./",
-      "description": "Contract-driven development framework for AI implementers under human supervision."
-    }
-  ]
+  "plugins": []
 }
